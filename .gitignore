@@ -1,0 +1,33 @@
+# Backup do banco de dados — não deve ir para o GitHub
+backup_fabrica.dump
+
+# Dumps de curl/scripts de teste avulsos usados durante o desenvolvimento
+resp.txt
+backend/resp.txt
+backend/_tmp_*
+
+# Arquivo compactado redundante — a versão extraída já está em backend/Modelos/
+backend/Modelos.rar
+
+# Dump real do banco de produção e listagem de pastas do servidor — dados
+# reais de clientes, usado só localmente para planejar a migração.
+backend/backup_antigo/
+
+*.crt
+*.key
+*.pem
+
+# Dependências
+node_modules/
+**/node_modules/
+
+# Ambientes e builds
+.env
+dist/
+build/
+
+
+# Dados do SisPonto (registros de ponto reais). O backend reescreve esse
+# arquivo a cada batida; versionado, um git pull em produção falharia ou
+# sobrescreveria os registros. O serviço cria o arquivo sozinho se faltar.
+backend/data/sis-ponto.json

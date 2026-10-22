@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+* {
+  font-family: 'Roboto', sans-serif !important;
+  font-weight: 700;
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #FFFFFF;
+  font-family: 'Roboto', sans-serif;
+  /* Garante que o scroll horizontal da página inteira funcione se necessário */
+  overflow-x: auto;
+}
+.app-header { padding: 16px 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 20px; border-bottom: 1px solid #dbe4f0; color: #183153; }
+.app-header nav { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+.app-header button { padding: 8px 12px; border: 1px solid #dbe4f0; border-radius: 8px; background: #fff; cursor: pointer; }
+.app-header button[aria-current] { background: #eaf2ff; color: #1767e8; }
+button:focus-visible { outline: 2px solid #1767e8; outline-offset: 2px; }
