@@ -9,6 +9,11 @@
 .event-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .event-page button { padding: 10px 16px; border-radius: 7px; border: 1px solid var(--line); background: white; font-size: 13px; }
 .event-page .event-primary { background: var(--brand-green); color: white; border-color: var(--brand-green); }
+.event-tabs { display: flex; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid var(--line); margin: 20px 0 24px; padding-bottom: 12px; }
+.event-tabs [aria-selected="true"] { background: var(--brand-green); border-color: var(--brand-green); color: white; }
+.event-form-section h2 { font-size: 20px; margin: 0 0 8px; }
+.event-form-section > p, .event-page [role="tabpanel"] > p { color: var(--muted); font-size: 14px; margin-bottom: 20px; line-height: 1.6; }
+.event-back { margin-bottom: 20px; }
 .event-page .event-reject { color: #9f1239; border-color: #eccbd2; }
 .event-page button:disabled { opacity: .6; cursor: wait; }
 .event-error { padding: 14px; border: 1px solid #eccbd2; border-radius: 7px; background: #fff5f6; color: #9f1239 !important; }

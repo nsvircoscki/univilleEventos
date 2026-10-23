@@ -135,10 +135,10 @@ export const eventoService = {
     if (!atual) throw new Error('Solicitação não encontrada.');
     const admin = usuario.setor === 'ADMIN';
     if (!admin && atual.solicitanteId !== usuario.id) throw new Error('Sem permissão para editar esta solicitação.');
-    if (!admin && !['RASCUNHO', 'PENDENTE', 'RECUSADO'].includes(atual.status)) throw new Error('Somente rascunhos, pendentes e recusadas podem ser editados.');
-    if (admin && atual.status !== 'APROVADO') throw new Error('O administrador só pode editar eventos aprovados.');
+    if (!['RASCUNHO', 'PENDENTE', 'RECUSADO', 'APROVADO'].includes(atual.status)) throw new Error('Esta solicitação não pode ser editada.');
+    if (admin && atual.solicitanteId !== usuario.id && atual.status !== 'APROVADO') throw new Error('Somente eventos aprovados de outros solicitantes podem ser editados.');
     let campos;
-    if (!admin && atual.status === 'RASCUNHO' && (!dados.titulo?.trim() || !dados.local?.trim() || !dados.inicio || !dados.fim)) {
+    if (atual.status === 'RASCUNHO' && (!dados.titulo?.trim() || !dados.local?.trim() || !dados.inicio || !dados.fim)) {
       campos = {
         titulo: typeof dados.titulo === 'string' ? dados.titulo.trim() : atual.titulo,
         local: typeof dados.local === 'string' ? dados.local.trim() : atual.local,
@@ -149,8 +149,13 @@ export const eventoService = {
       };
     } else campos = validarSolicitacao(dados, true);
     if (campos.titulo) await validarRelacionamentos({ ...campos, recursos: dados.recursos || [] });
-    if (atual.status === 'PENDENTE' || admin) await validarConflitoComAprovado(campos, id);
-    return prisma.evento.update({ where: { id }, data: { ...campos, status: admin ? 'APROVADO' : atual.status, ...(dados.recursos ? { recursos: { deleteMany: {}, create: dados.recursos.map((recursoId) => ({ recursoId })) } } : {}) } });
+    if (['PENDENTE', 'APROVADO'].includes(atual.status)) await validarConflitoComAprovado(campos, id);
+    return prisma.evento.update({ where: { id, status: atual.status, atualizadoEm: atual.atualizadoEm }, data: {
+      ...campos,
+      status: atual.status === 'APROVADO' ? 'PENDENTE' : atual.status,
+      ...(['APROVADO', 'PENDENTE'].includes(atual.status) ? { motivo: null, revisorId: null, decididoEm: null } : {}),
+      ...(dados.recursos ? { recursos: { deleteMany: {}, create: dados.recursos.map((recursoId) => ({ recursoId })) } } : {}),
+    } });
   },
   async enviarRascunho(id, dados, usuario) {
     dados = await aplicarAmbiente(dados);
@@ -195,7 +200,7 @@ export const eventoService = {
           inicio: { lt: evento.fim }, fim: { gt: evento.inicio } } });
         if (conflito) throw new Error('Já existe um evento aprovado neste espaço e horário.');
       }
-      return tx.evento.update({ where: { id }, data: { status: dados.status, motivo: motivo || null, revisorId, decididoEm: new Date() } });
+      return tx.evento.update({ where: { id, status: 'PENDENTE', atualizadoEm: evento.atualizadoEm }, data: { status: dados.status, motivo: motivo || null, revisorId, decididoEm: new Date() } });
     });
   },
 };

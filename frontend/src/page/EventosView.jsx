@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CalendarPlus, CalendarCheck, ClipboardList, Send, Check, X, RefreshCw, Save } from 'lucide-react';
+import { CalendarPlus, CalendarCheck, ClipboardList, Send, Check, X, RefreshCw, Save, Pencil } from 'lucide-react';
 import { api } from '../services/api';
 import Dropdown from '../components/Dropdown';
 import './eventos.css';
@@ -7,8 +7,68 @@ import './eventos.css';
 const rotulos = { RASCUNHO: 'Rascunho', PENDENTE: 'Pendente', APROVADO: 'Aprovado', RECUSADO: 'Recusado', CANCELADO: 'Cancelado' };
 const formatar = (data) => new Date(data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 export function SolicitarEventoView({ dataInicial, eventoInicial, administrador = false, onEnviado }) {
+  const [aba, setAba] = useState(eventoInicial?.status === 'APROVADO' ? 'aprovadas' : 'nova');
+  const [selecionado, setSelecionado] = useState(eventoInicial || null);
+  const [aprovadas, setAprovadas] = useState([]);
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState('');
+  const [tentativa, setTentativa] = useState(0);
+  useEffect(() => {
+    if (aba !== 'aprovadas') return;
+    let ativo = true;
+    setCarregando(true); setErro('');
+    (async () => {
+      try {
+        const res = await (administrador ? api.getSolicitacoes() : api.getMinhasSolicitacoes());
+        if (!res.ok) throw new Error(res.data?.error || 'Não foi possível carregar as palestras.');
+        if (ativo) setAprovadas(res.data.filter((evento) => evento.status === 'APROVADO'));
+      } catch (e) { if (ativo) setErro(e.message || 'Não foi possível conectar ao servidor.'); }
+      finally { if (ativo) setCarregando(false); }
+    })();
+    return () => { ativo = false; };
+  }, [aba, administrador, tentativa]);
+  const mudarAba = (destino) => { if (destino !== aba) { setAba(destino); setSelecionado(null); } };
+  const navegarAbas = (e) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+    e.preventDefault();
+    const destino = e.key === 'Home' ? 'nova' : e.key === 'End' ? 'aprovadas' : aba === 'nova' ? 'aprovadas' : 'nova';
+    mudarAba(destino);
+    document.getElementById(`solicitar-aba-${destino}`)?.focus();
+  };
+  return <main className="event-page">
+    <h1><CalendarPlus aria-hidden="true" />Solicitar evento</h1>
+    <div className="event-tabs" role="tablist" aria-label="Solicitações de palestras" onKeyDown={navegarAbas}>
+      <button id="solicitar-aba-nova" role="tab" aria-selected={aba === 'nova'} aria-controls="solicitar-painel-nova" tabIndex={aba === 'nova' ? 0 : -1} onClick={() => mudarAba('nova')}><CalendarPlus size={18} aria-hidden="true" />Nova palestra</button>
+      <button id="solicitar-aba-aprovadas" role="tab" aria-selected={aba === 'aprovadas'} aria-controls="solicitar-painel-aprovadas" tabIndex={aba === 'aprovadas' ? 0 : -1} onClick={() => mudarAba('aprovadas')}><Pencil size={18} aria-hidden="true" />Editar aprovadas</button>
+    </div>
+    <section id="solicitar-painel-nova" role="tabpanel" aria-labelledby="solicitar-aba-nova" hidden={aba !== 'nova'}>
+      {aba === 'nova' && <FormularioEvento key={selecionado?.id || 'nova'} dataInicial={dataInicial} eventoInicial={selecionado} onEnviado={onEnviado} />}
+    </section>
+    <section id="solicitar-painel-aprovadas" role="tabpanel" aria-labelledby="solicitar-aba-aprovadas" hidden={aba !== 'aprovadas'}>
+      <p>Ao enviar alterações, a palestra volta para análise e só reaparece no calendário público após nova aprovação.</p>
+      {aba === 'aprovadas' && (selecionado ? <>
+        <button className="event-back" onClick={() => setSelecionado(null)}>Voltar às palestras aprovadas</button>
+        <FormularioEvento key={selecionado.id} eventoInicial={selecionado} onEnviado={onEnviado} />
+      </> : <>
+        {erro && <p className="event-error" role="alert">{erro} <button onClick={() => setTentativa((valor) => valor + 1)}>Tentar novamente</button></p>}
+        {carregando ? <p role="status">Carregando palestras…</p> : !erro && (aprovadas.length ? <div className="event-request-list">{aprovadas.map((evento) => <article className="event-request" key={evento.id}>
+          <h2>{evento.titulo}</h2><p>{evento.local} · {formatar(evento.inicio)} até {formatar(evento.fim)}</p>
+          <button onClick={() => setSelecionado(evento)}><Pencil size={16} aria-hidden="true" />Editar palestra</button>
+        </article>)}</div> : <p className="event-empty">{administrador ? 'Nenhuma palestra aprovada para editar.' : 'Você ainda não possui palestras aprovadas para editar.'}</p>)}
+      </>)}
+    </section>
+  </main>;
+}
+
+const dataLocal = (valor) => {
+  if (!valor) return '';
+  const data = new Date(valor);
+  return new Date(data.getTime() - data.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+};
+
+function FormularioEvento({ dataInicial, eventoInicial, onEnviado }) {
   const vazio = { titulo: '', tema: '', palestrante: '', solicitanteTexto: '', publicoAlvo: '', justificativa: '', objetivo: '', local: '', ambienteId: '', cursoId: '', inicio: dataInicial ? dataInicial + 'T09:00' : '', fim: dataInicial ? dataInicial + 'T10:00' : '', descricao: '', cerimonial: false, haveraInscricoes: false, necessidadeDeclaracoes: false, recursosNecessarios: '', observacoes: '', recursos: [] };
-  const [form, setForm] = useState(() => eventoInicial ? { ...vazio, ...eventoInicial, inicio: eventoInicial.inicio?.slice(0, 16), fim: eventoInicial.fim?.slice(0, 16), recursos: eventoInicial.recursos?.map((item) => item.recursoId) || [] } : vazio);
+  const [form, setForm] = useState(() => eventoInicial ? { ...vazio, ...eventoInicial, inicio: dataLocal(eventoInicial.inicio), fim: dataLocal(eventoInicial.fim), recursos: eventoInicial.recursos?.map((item) => item.recursoId) || [] } : vazio);
   const [cadastros, setCadastros] = useState({ temas: [], ambientes: [], cursos: [], recursos: [] });
   const [erro, setErro] = useState('');
   const [enviando, setEnviando] = useState(false);
@@ -17,10 +77,6 @@ export function SolicitarEventoView({ dataInicial, eventoInicial, administrador 
       if (respostas.every((res) => res.ok)) setCadastros({ temas: respostas[0].data, ambientes: respostas[1].data, cursos: respostas[2].data, recursos: respostas[3].data });
     });
   }, []);
-  useEffect(() => {
-    if (!eventoInicial) return;
-    setForm({ ...vazio, ...eventoInicial, inicio: eventoInicial.inicio?.slice(0, 16), fim: eventoInicial.fim?.slice(0, 16), recursos: eventoInicial.recursos?.map((item) => item.recursoId) || [] });
-  }, [eventoInicial]);
   const campo = (nome) => (e) => setForm({ ...form, [nome]: e.target.value });
   const enviar = async (e) => {
     e.preventDefault();
@@ -53,8 +109,8 @@ export function SolicitarEventoView({ dataInicial, eventoInicial, administrador 
     if (!res.ok) { setErro(res.data?.error || 'Não foi possível salvar o rascunho.'); return; }
     onEnviado('rascunho');
   };
-  return <main className="event-page">
-    <h1><CalendarPlus aria-hidden="true" />{administrador ? 'Editar palestra' : eventoInicial ? 'Editar solicitação' : 'Solicitar evento'}</h1><p>{administrador ? 'Atualize os dados do evento aprovado.' : 'Salve um rascunho ou envie os dados para análise.'}</p>
+  return <div className="event-form-section">
+    <h2>{eventoInicial ? 'Editar palestra' : 'Nova palestra'}</h2><p>{eventoInicial?.status === 'APROVADO' ? 'As alterações serão enviadas para nova aprovação.' : 'Salve um rascunho ou envie os dados para análise.'}</p>
     <form className="event-form" onSubmit={enviar} aria-busy={enviando}>
       <label>Nome do evento<input value={form.titulo} onChange={campo('titulo')} maxLength={120} required /></label>
       <label>Tema<select value={form.temaId || ''} onChange={(e) => setForm({ ...form, temaId: e.target.value, tema: cadastros.temas.find((item) => item.id === e.target.value)?.nome || '' })} required><option value="">Selecione</option>{cadastros.temas.map((item) => <option key={item.id} value={item.id}>{item.nome}</option>)}</select></label>
@@ -85,16 +141,16 @@ export function SolicitarEventoView({ dataInicial, eventoInicial, administrador 
       <label>Observações<textarea value={form.observacoes} onChange={campo('observacoes')} maxLength={3000} rows={2} /></label>
       {erro && <p role="alert" className="event-error">{erro}</p>}
       {(!eventoInicial || ['RASCUNHO', 'RECUSADO'].includes(eventoInicial.status)) && <button type="button" onClick={rascunhar} disabled={enviando}><Save size={16} aria-hidden="true" />Salvar rascunho</button>}
-      <button className="event-primary" disabled={enviando}><Send size={16} aria-hidden="true" />{enviando ? 'Salvando…' : administrador ? 'Salvar palestra' : 'Enviar solicitação'}</button>
+      <button className="event-primary" disabled={enviando}><Send size={16} aria-hidden="true" />{enviando ? 'Enviando…' : eventoInicial?.status === 'APROVADO' ? 'Enviar para reaprovação' : 'Enviar solicitação'}</button>
     </form>
-  </main>;
+  </div>;
 }
 
 export function SolicitacoesView({ administracao = false, onDecisao, onEditar, eventoFoco = null }) {
   const [itens, setItens] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
-  const statusFoco = eventoFoco?.status || (administracao ? 'APROVADO' : 'TODAS');
+  const statusFoco = eventoFoco?.status || (administracao ? 'PENDENTE' : 'TODAS');
   const [filtro, setFiltro] = useState(statusFoco);
   const [ocupado, setOcupado] = useState('');
   const [motivos, setMotivos] = useState({});
@@ -169,7 +225,7 @@ export function SolicitacoesView({ administracao = false, onDecisao, onEditar, e
         {evento.descricao && <p className="event-description">{evento.descricao}</p>}
         {evento.motivo && <p><strong>Motivo da decisão:</strong> {evento.motivo}</p>}
         {evento.revisor && <p className="event-hint">Analisado por {evento.revisor.name}</p>}
-        {!administracao && ['RASCUNHO', 'PENDENTE', 'RECUSADO'].includes(evento.status) && <div className="event-decision"><div><button onClick={() => onEditar?.(evento)}>Editar</button>{evento.status !== 'RECUSADO' && <button onClick={() => alterar(evento)}>{evento.status === 'RASCUNHO' ? 'Excluir rascunho' : 'Cancelar solicitação'}</button>}</div></div>}
+        {!administracao && ['RASCUNHO', 'PENDENTE', 'RECUSADO', 'APROVADO'].includes(evento.status) && <div className="event-decision"><div><button onClick={() => onEditar?.(evento)}>Editar</button>{['RASCUNHO', 'PENDENTE'].includes(evento.status) && <button onClick={() => alterar(evento)}>{evento.status === 'RASCUNHO' ? 'Excluir rascunho' : 'Cancelar solicitação'}</button>}</div></div>}
         {administracao && evento.status === 'APROVADO' && <div className="event-decision"><div>
           <button onClick={() => onEditar?.(evento)}>Editar palestra</button>
           <button className="event-reject" disabled={Boolean(ocupado)} onClick={() => cancelarComoAdministrador(evento)}>

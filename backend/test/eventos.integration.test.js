@@ -60,7 +60,7 @@ test('fluxo de solicitações: privacidade pública, permissões e aprovação c
     assert.equal(novoUsuario.status, 201);
     ids.push(novoUsuario.data.id);
     const inicio = new Date(Date.now() + 3 * 86400000);
-    const dados = { titulo: 'Evento de teste', local: 'Espaço teste ' + ids[0], descricao: 'Descrição privada', inicio: inicio.toISOString(), fim: new Date(+inicio + 3600000).toISOString(), status: 'APROVADO' };
+    const dados = { titulo: 'Evento de teste', local: 'Espaço teste ' + ids[0], descricao: 'Descrição pública', tema: 'Tema de teste', palestrante: 'Palestrante teste', solicitanteTexto: 'Solicitante teste', publicoAlvo: 'Comunidade', justificativa: 'Justificativa privada', objetivo: 'Objetivo de teste', cerimonial: false, haveraInscricoes: false, necessidadeDeclaracoes: false, inicio: inicio.toISOString(), fim: new Date(+inicio + 3600000).toISOString(), status: 'APROVADO' };
     assert.equal((await req('/solicitacoes', 'POST', dados)).status, 401);
     const a = await req('/solicitacoes', 'POST', dados, 1);
     const b = await req('/solicitacoes', 'POST', dados, 2);
@@ -76,12 +76,34 @@ test('fluxo de solicitações: privacidade pública, permissões e aprovação c
     const aprovado = decisoes.find((d) => d.status === 200).data;
     const recusado = aprovado.id === a.data.id ? b.data : a.data;
     const publico = (await req('')).data.find((e) => e.id === aprovado.id);
-    assert.deepEqual(Object.keys(publico).sort(), ['descricao', 'fim', 'id', 'inicio', 'local', 'titulo']);
+    assert.deepEqual(Object.keys(publico).sort(), ['ambienteId', 'cursoId', 'descricao', 'fim', 'id', 'inicio', 'local', 'palestrante', 'tema', 'temaId', 'titulo']);
     assert.equal((await req(`/solicitacoes/${aprovado.id}/decisao`, 'PATCH', { status: 'RECUSADO', motivo: 'teste' }, 0)).status, 400);
     assert.equal((await req(`/solicitacoes/${recusado.id}/decisao`, 'PATCH', { status: 'RECUSADO' }, 0)).status, 400);
     assert.equal((await req(`/solicitacoes/${recusado.id}/decisao`, 'PATCH', { status: 'RECUSADO', motivo: 'Horário indisponível' }, 0)).status, 200);
     const adjacente = await req('/solicitacoes', 'POST', { ...dados, inicio: dados.fim, fim: new Date(+inicio + 7200000).toISOString() }, 1);
     assert.equal((await req(`/solicitacoes/${adjacente.data.id}/decisao`, 'PATCH', { status: 'APROVADO' }, 0)).status, 200);
+
+    const dono = aprovado.id === a.data.id ? 1 : 2;
+    const outro = dono === 1 ? 2 : 1;
+    assert.equal((await req(`/solicitacoes/${aprovado.id}`, 'PUT', { ...dados, titulo: 'Edição sem permissão' }, outro)).status, 400);
+    assert.equal((await req('')).data.some((e) => e.id === aprovado.id), true);
+    const editado = await req(`/solicitacoes/${aprovado.id}`, 'PUT', { ...dados, titulo: 'Palestra revisada', revisorId: ids[0], decididoEm: new Date().toISOString() }, dono);
+    assert.equal(editado.status, 200);
+    assert.equal(editado.data.status, 'PENDENTE');
+    assert.equal(editado.data.revisorId, null);
+    assert.equal(editado.data.decididoEm, null);
+    assert.equal(editado.data.motivo, null);
+    assert.equal((await req('')).data.some((e) => e.id === aprovado.id), false);
+    assert.equal((await req(`/solicitacoes/${aprovado.id}/decisao`, 'PATCH', { status: 'APROVADO' }, dono)).status, 403);
+    assert.equal((await req(`/solicitacoes/${aprovado.id}/decisao`, 'PATCH', { status: 'APROVADO' }, 0)).status, 200);
+    assert.equal((await req('')).data.find((e) => e.id === aprovado.id).titulo, 'Palestra revisada');
+    const edicaoAdmin = await req(`/${aprovado.id}`, 'PUT', { ...dados, titulo: 'Revisão administrativa' }, 0);
+    assert.equal(edicaoAdmin.status, 200);
+    assert.equal(edicaoAdmin.data.status, 'PENDENTE');
+    assert.equal(edicaoAdmin.data.revisorId, null);
+    assert.equal((await req('')).data.some((e) => e.id === aprovado.id), false);
+    assert.equal((await req(`/solicitacoes/${aprovado.id}/decisao`, 'PATCH', { status: 'RECUSADO', motivo: 'Revisar alterações' }, 0)).status, 200);
+    assert.equal((await req('')).data.some((e) => e.id === aprovado.id), false);
   } finally {
     if (server) { server.closeAllConnections(); await new Promise((resolve) => server.close(resolve)); }
     await prisma.evento.deleteMany({ where: { solicitanteId: { in: ids } } });

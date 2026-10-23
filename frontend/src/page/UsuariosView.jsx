@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { usuarioService } from '../services/usuarioService';
 import {
-  Actions, ConfirmModal, Field, SelectField, Section, Shell, Switch, Toast, useToast, C, MONT, SANS,
+  Actions, ConfirmModal, Field, SelectField, Section, Shell, Toast, useToast, C, MONT, SANS,
 } from '../components/cadastros/CadastroKit.jsx';
 
 const formVazio = {
@@ -34,17 +34,6 @@ function Etiqueta({ texto, cor }) {
 const sugerirLogin = (nome) => String(nome || '').trim().split(/\s+/)[0]
   .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .toLowerCase().replace(/[^a-z0-9._-]/g, '');
-
-function LinhaSwitch({ valor, onChange, rotuloSim, rotuloNao }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <Switch value={valor} onChange={onChange} />
-      <span style={{ fontFamily: SANS, fontSize: 13.5, color: C.text, fontWeight: 600 }}>
-        {valor ? rotuloSim : rotuloNao}
-      </span>
-    </div>
-  );
-}
 
 export default function UsuariosView({ onBack, usuarioAtual }) {
   const accent = '#005f36';
@@ -238,7 +227,6 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
         <Field label="E-mail" icon="mail" value={form.email} onChange={set('email')} placeholder="nome@exemplo.com" />
         <Field
           label="Usuário (login)" icon="id" value={form.login} onChange={mudarLogin} placeholder="ex.: bianca"
-          hint="É o que a pessoa digita pra entrar. Letras sem acento, números, ponto, hífen ou _."
         />
         <SelectField label="Setor" icon="brief" value={form.setor} onChange={set('setor')} options={setores} />
         {!editando && (
@@ -246,16 +234,20 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
         )}
 
 
-        <div style={{ gridColumn: '1 / -1', display: 'flex', flexWrap: 'wrap', gap: '14px 36px', paddingTop: 4 }}>
-          {editando && (
-            <LinhaSwitch
-              valor={form.ativo}
-              onChange={ehVoce ? () => show('Você não pode desativar a própria conta.', 'err') : set('ativo')}
-              rotuloSim="Ativo — pode entrar no sistema"
-              rotuloNao="Inativo — sem acesso"
-            />
-          )}
-        </div>
+        {editando && (
+          <SelectField
+            label="Situação"
+            value={form.ativo ? 'ativo' : 'inativo'}
+            onChange={(valor) => {
+              if (ehVoce && valor === 'inativo') { show('Você não pode desativar a própria conta.', 'err'); return; }
+              set('ativo')(valor === 'ativo');
+            }}
+            options={[
+              { value: 'ativo', label: 'Ativo' },
+              { value: 'inativo', label: 'Inativo' },
+            ]}
+          />
+        )}
       </Section>
 
       <Actions

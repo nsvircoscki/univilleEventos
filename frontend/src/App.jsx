@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CalendarDays, CalendarPlus, ClipboardList, ClipboardCheck, Users, LogIn, LogOut, KeyRound, BarChart3 } from 'lucide-react';
+import { CalendarDays, CalendarPlus, ClipboardList, ClipboardCheck, Users, LogIn, LogOut, KeyRound, BarChart3, FolderCog } from 'lucide-react';
 import IntroScreen from './components/IntroScreen';
 import { LoginView } from './components/LoginView';
 import CalendarioView from './page/CalendarioView';
@@ -116,7 +116,7 @@ export default function App() {
         {admin && <><button onClick={() => setTela('aprovacoes')} aria-current={tela === 'aprovacoes' ? 'page' : undefined}><ClipboardCheck aria-hidden="true" />Aprovar solicitações</button>
           <button onClick={() => setTela('relatorios')} aria-current={tela === 'relatorios' ? 'page' : undefined}><BarChart3 aria-hidden="true" />Relatórios</button>
           <button onClick={() => setTela('usuarios')} aria-current={tela === 'usuarios' ? 'page' : undefined}><Users aria-hidden="true" />Usuários</button>
-          <button onClick={() => setTela('cadastros')} aria-current={tela === 'cadastros' ? 'page' : undefined}>Cadastros</button></>}
+          <button onClick={() => setTela('cadastros')} aria-current={tela === 'cadastros' ? 'page' : undefined}><FolderCog aria-hidden="true" />Cadastros</button></>}
       </nav>
     </header>
     {erro && <p className="event-error" role="alert">{erro}</p>}
@@ -125,7 +125,7 @@ export default function App() {
       : tela === 'aprovacoes' && admin ? <SolicitacoesView administracao eventoFoco={eventoFocoAprovacao} onDecisao={carregarEventos} onEditar={(evento) => solicitar('', evento)} />
       : tela === 'relatorios' && admin ? <RelatoriosView />
       : tela === 'minhas' && usuario ? <SolicitacoesView onEditar={(evento) => solicitar('', evento)} />
-      : tela === 'solicitar' && usuario ? <SolicitarEventoView eventoInicial={eventoEdicao} dataInicial={dataSolicitacao} administrador={admin} onEnviado={(acao) => setTela(acao === 'rascunho' && !admin ? 'minhas' : admin ? 'aprovacoes' : 'minhas')} />
+      : tela === 'solicitar' && usuario ? <SolicitarEventoView key={eventoEdicao?.id || 'nova'} eventoInicial={eventoEdicao} dataInicial={dataSolicitacao} administrador={admin} onEnviado={(acao) => { carregarEventos(); setEventoFocoAprovacao(null); setTela(acao === 'rascunho' ? 'minhas' : admin ? 'aprovacoes' : 'minhas'); }} />
       : <CalendarioView eventos={eventos} erro={erroEventos} onRecarregar={carregarEventos} onSolicitar={solicitar} autenticado={Boolean(usuario)} publicoLimitado={!usuario} podeEditar={admin} onEditar={admin ? abrirAprovacao : undefined} />}
     {senha && usuario && <AlterarSenhaModal usuarioLogado={usuario.setor} onClose={() => setSenha(false)} />}
     <Footer />
