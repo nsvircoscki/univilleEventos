@@ -1,4 +1,4 @@
-import { api, definirToken, aoExpirarSessao, temToken } from './api';
+import { api, aoExpirarSessao } from './api';
 
 export const authService = {
   async login(login, senha) {
@@ -9,7 +9,7 @@ export const authService = {
     return api.criarSenha(login, novaSenha);
   },
 
-  // A senha trocada é sempre a de quem está logado (o backend lê do token).
+  // A senha trocada é sempre a de quem está logado (o backend lê da sessão).
   async alterarSenha(senhaAtual, novaSenha) {
     return api.alterarSenha(senhaAtual, novaSenha);
   },
@@ -18,7 +18,6 @@ export const authService = {
     return api.getSessao();
   },
 
-  definirToken,
+  sair: () => api.sair(),
   aoExpirarSessao,
-  temToken,
 };

@@ -18,4 +18,44 @@ model User {
   ativo         Boolean @default(true)
   roleId        String
   role          Role @relation(fields: [roleId], references: [id])
+  solicitacoes  Evento[] @relation("Solicitante")
+  decisoes      Evento[] @relation("Revisor")
+  sessoes       Sessao[]
+}
+
+model Sessao {
+  id       String @id
+  usuarioId String
+  usuario  User @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  expiraEm DateTime
+  @@index([expiraEm])
+  @@index([usuarioId])
+}
+
+enum StatusEvento {
+  PENDENTE
+  APROVADO
+  RECUSADO
+}
+
+model Evento {
+  id             String @id @default(uuid())
+  titulo         String
+  descricao      String @default("")
+  local          String
+  localChave     String
+  inicio         DateTime
+  fim            DateTime
+  status         StatusEvento @default(PENDENTE)
+  motivo         String?
+  criadoEm       DateTime @default(now())
+  decididoEm     DateTime?
+  solicitanteId  String
+  solicitante    User @relation("Solicitante", fields: [solicitanteId], references: [id])
+  revisorId      String?
+  revisor        User? @relation("Revisor", fields: [revisorId], references: [id])
+
+  @@index([status, inicio, fim])
+  @@index([localChave, status, inicio, fim])
+  @@index([solicitanteId, criadoEm])
 }

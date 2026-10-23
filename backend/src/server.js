@@ -1,13 +1,12 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { garantirSegredoJwt } from './config/jwt.js';
 import { autenticar, exigirSetor } from './middlewares/autenticar.js';
 import { cabecalhosSeguranca, bloquearOperadores, limitarTentativasLogin, opcoesCors, tratarErros } from './middlewares/seguranca.js';
 import authRoutes from './routes/authRoutes.js';
 import usuarioRoutes from './routes/usuarioRoutes.js';
+import eventoRoutes from './routes/eventoRoutes.js';
 
-garantirSegredoJwt();
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 'loopback');
@@ -16,8 +15,9 @@ app.use(cors(opcoesCors()));
 app.use(express.json({ limit: '2mb' }));
 app.use(bloquearOperadores);
 app.get('/health', (_req, res) => res.json({ ok: true }));
-app.use(['/auth/login', '/auth/criar-senha', '/auth/alterar-senha'], limitarTentativasLogin);
+app.use(['/auth/login', '/auth/cadastro', '/auth/criar-senha', '/auth/alterar-senha'], limitarTentativasLogin);
 app.use('/auth', authRoutes);
+app.use('/eventos', eventoRoutes);
 app.use('/usuarios', autenticar, exigirSetor('ADMIN'), usuarioRoutes);
 app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 app.use(tratarErros);

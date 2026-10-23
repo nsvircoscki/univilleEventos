@@ -5,11 +5,12 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "node src/server.js",
+    "dev": "node --watch src/server.js",
     "test": "node --test \"test/**/*.test.js\"",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
-    "db:admin": "node scripts/criarAdmin.mjs"
+    "db:admin": "node scripts/criarAdmin.mjs",
+    "db:demo": "node scripts/criarDadosDemo.mjs"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +22,6 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
     "pg": "^8.21.0"
   },
   "devDependencies": {

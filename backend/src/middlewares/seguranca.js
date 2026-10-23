@@ -103,7 +103,7 @@ export function opcoesCors() {
     console.warn('Aviso: CORS_ORIGENS não configurado — a API aceita chamadas de qualquer site (ok só em desenvolvimento).');
     return {};
   }
-  return { origin: origens };
+  return { origin: origens, credentials: true };
 }
 
 // Último middleware: erro não tratado vira resposta genérica (o detalhe fica

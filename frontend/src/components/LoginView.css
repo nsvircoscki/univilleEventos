@@ -1,0 +1,44 @@
+.portal-login {
+  min-height: 100dvh;
+  padding: clamp(64px, 9vw, 130px) 20px 48px;
+  background: #82c55b url('../assets/login/fundo-portal.jpg') no-repeat top center;
+  background-size: cover;
+}
+.portal-login-content { width: 100%; max-width: 340px; margin: 0 auto; }
+.portal-login-logo { display: block; width: 198px; height: 45px; margin: 0 auto 30px; object-fit: contain; }
+.portal-login-card { padding: 30px 30px 44px; border-radius: 5px; background: var(--brand-light); text-align: center; }
+.portal-login-card h1 { margin: 0 0 27px; color: white; text-transform: uppercase; font-size: 21px; font-weight: 500; letter-spacing: 2px; line-height: 1.3; }
+.portal-login-field { display: flex; min-height: 57px; margin-bottom: 14px; text-align: left; }
+.portal-login-icon { width: 58px; flex: 0 0 58px; display: flex; align-items: center; justify-content: center; color: white; background: var(--brand-green); border-radius: 4px 0 0 4px; }
+.portal-login-field input { width: 100%; min-width: 0; border: 0; border-radius: 0 4px 4px 0; padding: 16px 13px; background: white; color: #333; font-size: 14px; font-weight: 400; }
+.portal-login-field input:hover, .portal-login-field input:focus { background: #eee; }
+.portal-login-field input::placeholder { color: #66716a; opacity: 1; font-weight: 400; }
+.portal-password { flex: 1; position: relative; min-width: 0; display: flex; }
+.portal-password input { padding-right: 38px; }
+.portal-password-toggle { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 30px; height: 34px; border: 0; border-radius: 3px; background: transparent; color: #657168; }
+.portal-password-toggle:hover { color: var(--brand-green); }
+.portal-login-submit { display: block; min-width: 186px; max-width: 100%; min-height: 35px; margin: 34px auto 0; padding: 10px 14px; border: 0; border-radius: 2px; background: var(--brand-green); color: white; font-size: 11px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; transition: opacity .15s; }
+.portal-login-submit:hover { opacity: .85; }
+.portal-login-submit:disabled { opacity: .65; cursor: wait; }
+.portal-login-help { display: inline-block; margin-top: 21px; border: 0; padding: 0; background: transparent; color: #173e24; font-size: 15px; text-decoration: underline; text-underline-offset: 2px; }
+.portal-login-help:hover { color: var(--brand-green); }
+.portal-login-message { margin: 18px 0 0; padding: 12px; border-radius: 4px; background: #ffffffed; color: var(--brand-green); text-align: left; font-size: 13px; line-height: 1.5; font-weight: 400; overflow-wrap: anywhere; }
+.portal-login-error { color: #9f1239; }
+.portal-login-greeting { margin: -8px 0 20px; color: #173e24; font-size: 13px; line-height: 1.5; }
+.portal-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (max-width: 480px) {
+  .portal-login { padding: 56px 20px 40px; }
+  .portal-login-card { padding: 28px 24px 36px; }
+  .portal-login-card h1 { font-size: 19px; }
+}
+
+.portal-create-account { display:block; margin:22px auto 0; }
+.portal-register { padding-top:44px; }
+.portal-register .portal-login-content { max-width:400px; }
+.portal-register h1 { display:flex; gap:10px; justify-content:center; align-items:center; }
+.register-form { display:grid; gap:14px; text-align:left; }
+.register-form label { display:grid; gap:6px; font-size:12px; color:#173e24; }
+.register-form input { border:0; border-radius:4px; min-width:0; padding:12px; width:100%; background:white; font-size:14px; }
+.register-form > p { font-size:11px; color:#173e24; line-height:1.5; }
+.register-form .portal-login-submit { display:flex; align-items:center; justify-content:center; gap:8px; margin:8px auto 0; }
+

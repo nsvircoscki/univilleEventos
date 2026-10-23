@@ -1,24 +1,25 @@
 const BASE_URL = import.meta.env.VITE_API_URL || '/api';
-const CHAVE_TOKEN = 'univille:token';
-let tokenAtual = localStorage.getItem(CHAVE_TOKEN);
+try { localStorage.removeItem('univille:token'); } catch { /* JWT legado */ }
 let aoPerderSessao = null;
-export function definirToken(token) {
-  tokenAtual = token || null;
-  if (tokenAtual) localStorage.setItem(CHAVE_TOKEN, tokenAtual);
-  else localStorage.removeItem(CHAVE_TOKEN);
-}
-export const temToken = () => Boolean(tokenAtual);
 export function aoExpirarSessao(callback) { aoPerderSessao = callback; }
 async function req(path, method = 'GET', body) {
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
-    headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...(tokenAtual ? { Authorization: `Bearer ${tokenAtual}` } : {}) },
+    credentials: 'include',
+    headers: { ...(body ? { 'Content-Type': 'application/json' } : {}) },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
-  if (res.status === 401 && tokenAtual) aoPerderSessao?.();
+  if (res.status === 401 && !['/auth/me', '/auth/login', '/auth/cadastro'].includes(path)) aoPerderSessao?.();
   return { data: await res.json(), ok: res.ok };
 }
 export const api = {
+  sair: () => req('/auth/sair', 'POST'),
+  cadastrar: (dados) => req('/auth/cadastro', 'POST', dados),
+  getEventos: () => req('/eventos'),
+  getMinhasSolicitacoes: () => req('/eventos/minhas-solicitacoes'),
+  getSolicitacoes: () => req('/eventos/solicitacoes'),
+  solicitarEvento: (dados) => req('/eventos/solicitacoes', 'POST', dados),
+  decidirEvento: (id, status, motivo) => req(`/eventos/solicitacoes/${id}/decisao`, 'PATCH', { status, motivo }),
   login: (login, senha) => req('/auth/login', 'POST', { login, senha }),
   criarSenha: (login, novaSenha) => req('/auth/criar-senha', 'POST', { login, novaSenha }),
   alterarSenha: (senhaAtual, novaSenha) => req('/auth/alterar-senha', 'POST', { senhaAtual, novaSenha }),

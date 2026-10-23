@@ -15,7 +15,7 @@ const formVazio = {
 
 // Mesmos tons do Kanban, com o amarelo do ENG escurecido: aqui a cor é do
 // texto da etiqueta, e amarelo claro sobre fundo claro não se lê.
-const CORES_SETOR = { ADMIN: '#0f766e', USUARIO: '#1E88E5' };
+const CORES_SETOR = { ADMIN: '#005f36', USUARIO: '#657168' };
 
 function Etiqueta({ texto, cor }) {
   return (
@@ -47,7 +47,7 @@ function LinhaSwitch({ valor, onChange, rotuloSim, rotuloNao }) {
 }
 
 export default function UsuariosView({ onBack, usuarioAtual }) {
-  const accent = '#0f766e';
+  const accent = '#005f36';
   const { toast, show } = useToast();
 
   const [usuarios, setUsuarios] = useState([]);
@@ -176,10 +176,10 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
             <button type="button" onClick={novaPessoa} style={{
               padding: '9px 18px', borderRadius: 10, border: `1.5px solid ${accent}`,
-              background: editando ? '#fff' : `${accent}12`, color: accent,
+              background: editando ? 'var(--surface, #fff)' : `${accent}12`, color: 'var(--accent)',
               fontFamily: MONT, fontWeight: 700, fontSize: 12.5, cursor: 'pointer',
             }}>
-              + Nova pessoa
+              + Criar usuário
             </button>
           </div>
           <div style={{ border: `1px solid ${C.borderSoft}`, borderRadius: 12, overflowX: 'auto' }}>
@@ -206,7 +206,7 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
                         background: ativoNaLista ? `${accent}10` : 'transparent',
                         opacity: u.ativo ? 1 : 0.55,
                       }}
-                      onMouseEnter={(e) => { if (!ativoNaLista) e.currentTarget.style.background = '#F8FAFC'; }}
+                      onMouseEnter={(e) => { if (!ativoNaLista) e.currentTarget.style.background = 'var(--surface-muted)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = ativoNaLista ? `${accent}10` : 'transparent'; }}
                     >
                       <td style={{ ...td, fontWeight: 700 }}>
@@ -234,7 +234,7 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
 
       <Section
         icon="id"
-        title={editando ? `Editando: ${selecionado.nome}` : 'Nova pessoa'}
+        title={editando ? `Editando: ${selecionado.nome}` : 'Criar usuário'}
         desc={editando ? 'Dados de acesso' : 'Cadastre com uma senha inicial e passe pra pessoa — ela troca em "Alterar senha"'}
         accent={accent}
       >
@@ -278,8 +278,8 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
           <Field label="Nova senha" icon="id" type="password" value={novaSenha} onChange={setNovaSenha} placeholder="Mínimo de 4 caracteres" />
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <button type="button" onClick={definirSenha} disabled={definindoSenha} style={{
-              padding: '11px 22px', borderRadius: 10, border: `1.5px solid ${accent}`, background: '#fff',
-              color: accent, fontFamily: MONT, fontWeight: 700, fontSize: 13, cursor: definindoSenha ? 'default' : 'pointer',
+              padding: '11px 22px', borderRadius: 10, border: `1.5px solid ${accent}`, background: 'var(--surface, #fff)',
+              color: 'var(--accent)', fontFamily: MONT, fontWeight: 700, fontSize: 13, cursor: definindoSenha ? 'default' : 'pointer',
               opacity: definindoSenha ? 0.6 : 1,
             }}>
               {definindoSenha ? 'Salvando…' : 'Definir senha'}

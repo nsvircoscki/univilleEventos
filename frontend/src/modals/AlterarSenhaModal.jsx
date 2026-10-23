@@ -3,6 +3,8 @@ import { authService } from '../services/authService';
 
 const campoStyle = {
   width: '100%',
+  background: 'var(--surface-muted, #fff)',
+  color: 'var(--text, #26372e)',
   padding: '12px 14px',
   borderRadius: '10px',
   border: '1.5px solid #DDD',
@@ -48,19 +50,19 @@ export function AlterarSenhaModal({ usuarioLogado, onClose }) {
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 200 }}>
-      <div style={{ background: '#FFF', padding: '32px', borderRadius: '18px', width: '380px', boxShadow: '0px 10px 40px rgba(0,0,0,0.2)' }}>
-        <h2 style={{ margin: '0 0 4px', color: '#333', fontSize: '18px' }}>Alterar senha</h2>
-        <p style={{ margin: '0 0 22px', color: '#777', fontSize: '13px', fontWeight: 'bold' }}>{usuarioLogado}</p>
+      <div style={{ background: 'var(--surface, #fff)', padding: '32px', borderRadius: '18px', width: '380px', maxWidth: 'calc(100vw - 32px)', boxShadow: '0px 10px 40px rgba(0,0,0,0.2)' }}>
+        <h2 style={{ margin: '0 0 4px', color: 'var(--text)', fontSize: '18px' }}>Alterar senha</h2>
+        <p style={{ margin: '0 0 22px', color: 'var(--muted)', fontSize: '13px', fontWeight: 'bold' }}>{usuarioLogado}</p>
 
         {sucesso ? (
           <>
-            <p style={{ color: '#22C55E', fontWeight: 'bold', fontSize: '14px', margin: '0 0 20px' }}>
+            <p style={{ color: '#005f36', fontWeight: 'bold', fontSize: '14px', margin: '0 0 20px' }}>
               Senha alterada com sucesso.
             </p>
             <button
               type="button"
               onClick={onClose}
-              style={{ width: '100%', padding: '12px', borderRadius: '10px', border: 'none', background: '#2D7AFD', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}
+              style={{ width: '100%', padding: '12px', borderRadius: '10px', border: 'none', background: '#005f36', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}
             >
               Fechar
             </button>
@@ -90,7 +92,7 @@ export function AlterarSenhaModal({ usuarioLogado, onClose }) {
               <button
                 type="button"
                 onClick={onClose}
-                style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid #DDD', background: '#FFF', color: '#777', fontWeight: 'bold', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid #DDD', background: 'var(--surface, #fff)', color: 'var(--muted)', fontWeight: 'bold', cursor: 'pointer' }}
               >
                 Cancelar
               </button>
@@ -100,7 +102,7 @@ export function AlterarSenhaModal({ usuarioLogado, onClose }) {
                 disabled={salvando || !senhaAtual || !novaSenha || !confirmarSenha}
                 style={{
                   flex: 1, padding: '12px', borderRadius: '10px', border: 'none',
-                  background: salvando ? '#94B8FF' : '#2D7AFD', color: '#fff', fontWeight: 'bold',
+                  background: salvando ? '#82c55b' : '#005f36', color: '#fff', fontWeight: 'bold',
                   cursor: salvando ? 'default' : 'pointer',
                 }}
               >

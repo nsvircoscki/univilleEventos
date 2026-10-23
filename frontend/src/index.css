@@ -1,25 +1,49 @@
 @import "tailwindcss";
 
-* {
-  font-family: 'Roboto', sans-serif !important;
-  font-weight: 700;
+/* RGB oficiais: Central da Marca Univille — Expressões / Cores. */
+:root {
+  --brand-green: #005f36;
+  --brand-light: #82c55b;
+  --brand-sand: #e3e1da;
+  --brand-white: #ffffff;
+  --brand-tint: #f0f7ed;
+  --text: #26372e;
+  --muted: #657168;
+  --line: #e3e7e2;
 }
-
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif !important; font-weight: 700; }
+body { background: #fafbf9; color: var(--text); }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--brand-green); outline-offset: 3px; }
+.brand-logo { display: block; width: 194px; height: auto; object-fit: contain; flex-shrink: 0; }
+.brand-bar { width: 100%; height: 76px; display: flex; align-items: center; justify-content: center; background: var(--brand-green); }
+.app-header { min-height: 72px; padding: 16px 32px; display: flex; align-items: center; flex-wrap: wrap; gap: 24px; border-bottom: 1px solid var(--line); background: white; }
+.app-header > strong { font-size: 15px; color: var(--brand-green); }
+.app-header > span { font-size: 12px; color: var(--muted); }
+.app-header nav { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+.app-header button { padding: 9px 12px; border: 1px solid transparent; border-radius: 8px; background: white; font-size: 12px; color: var(--muted); transition: background .15s, color .15s; }
+.app-header button:hover { background: #f5f6f2; color: var(--brand-green); }
+.app-header button[aria-current] { background: var(--brand-tint); color: var(--brand-green); }
+.session-status { padding: 32px; text-align: center; color: var(--muted); }
+.intro-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--brand-green); color: white; animation: intro-exit 1s ease both; }
+.intro-content { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; padding: 24px; animation: intro-enter .35s ease both; }
+.intro-logo { width: min(480px, 92vw); }
+.intro-divider { height: 2px; width: 42px; margin: 30px 0 22px; background: var(--brand-light); animation: intro-enter .35s .1s both; }
+.intro-title { font-size: clamp(18px, 3vw, 23px); letter-spacing: .015em; }
+.intro-caption { margin-top: 12px; font-size: 13px; color: #e3e1da; font-weight: 400; }
+.intro-progress { position: absolute; bottom: 48px; width: 120px; height: 3px; background: #ffffff26; border-radius: 4px; overflow: hidden; }
+.intro-progress span { display: block; height: 100%; background: var(--brand-light); transform-origin: left; animation: intro-progress .85s ease both; }
+@keyframes intro-enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes intro-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes intro-exit { 0%, 88% { opacity: 1; } 100% { opacity: 0; } }
+@media (max-width: 760px) {
+  .app-header { padding: 16px; gap: 12px; }
+  .app-header nav { flex-basis: 100%; order: 3; }
+  .app-header > span { margin-left: auto; }
 }
-
-body {
-  background-color: #FFFFFF;
-  font-family: 'Roboto', sans-serif;
-  /* Garante que o scroll horizontal da página inteira funcione se necessário */
-  overflow-x: auto;
+@media (prefers-reduced-motion: reduce) {
+  .intro-screen, .intro-content, .intro-divider, .intro-progress span { animation: none; }
+  .intro-progress span { transform: scaleX(1); }
 }
-.app-header { padding: 16px 20px; display: flex; align-items: center; flex-wrap: wrap; gap: 20px; border-bottom: 1px solid #dbe4f0; color: #183153; }
-.app-header nav { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
-.app-header button { padding: 8px 12px; border: 1px solid #dbe4f0; border-radius: 8px; background: #fff; cursor: pointer; }
-.app-header button[aria-current] { background: #eaf2ff; color: #1767e8; }
-button:focus-visible { outline: 2px solid #1767e8; outline-offset: 2px; }

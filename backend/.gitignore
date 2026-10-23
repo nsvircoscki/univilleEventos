@@ -1,17 +1,9 @@
-# Dependências do Node
-node_modules/
-**/node_modules/
-
-# Variáveis de Ambiente 
+﻿node_modules/
 .env
-.env.local
 .env.*
 !.env.example
-
-# Logs e builds
-npm-debug.log*
+!.env.*.example
 dist/
 build/
-
-# Pastas de serviços geradas automaticamente ao cadastrar um serviço
-servicos/
+logs/
+*.log

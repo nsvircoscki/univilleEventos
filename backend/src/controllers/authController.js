@@ -1,10 +1,12 @@
 // src/controllers/authController.js
 import { authService } from '../services/authService.js';
+import { iniciarSessao } from '../services/sessaoService.js';
 
 export const authController = {
   async login(req, res) {
     try {
       const resultado = await authService.login(req.body.login, req.body.senha);
+      await iniciarSessao(req, res, resultado.usuario.id);
       res.json(resultado);
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -31,7 +33,7 @@ export const authController = {
     }
   },
 
-  // Usado pelo front ao recarregar a página: confirma que o token guardado
+  // Usado pelo front ao recarregar a página: confirma que a sessão do cookie
   // ainda vale e devolve a pessoa atualizada (nome/setor podem ter mudado).
   async me(req, res) {
     res.json(req.usuario);

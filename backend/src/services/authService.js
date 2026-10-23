@@ -1,7 +1,6 @@
 // src/services/authService.js
 import bcrypt from 'bcryptjs';
 import { prisma } from '../prisma.js';
-import { gerarToken } from '../config/jwt.js';
 
 // Exportado: o cadastro de usuários (usuarioService) aplica a mesma regra à
 // senha inicial e à redefinida pelo admin.
@@ -32,7 +31,7 @@ async function buscarPorLogin(login) {
   return user;
 }
 
-// Para quem já está logado: o id vem do token.
+// Para quem já está logado: o id vem da sessão.
 async function buscarUsuarioAtivo(usuarioId) {
   const user = await prisma.user.findUnique({ where: { id: usuarioId }, include: { role: true } });
   if (!user || !user.ativo) throw new Error('Usuário não encontrado.');
@@ -52,7 +51,7 @@ export const authService = {
     const senhaConfere = await bcrypt.compare(senha || '', user.password_hash);
     if (!senhaConfere) throw new Error(CREDENCIAIS_INVALIDAS);
 
-    return { precisaCriarSenha: false, token: gerarToken(user.id), usuario: paraSessao(user) };
+    return { precisaCriarSenha: false, usuario: paraSessao(user) };
   },
 
   // Desativado: criar a própria senha só com o login permitia tomar a conta
@@ -61,7 +60,7 @@ export const authService = {
     throw new Error('Peça à administração para definir sua senha inicial (Configurações → Usuários).');
   },
 
-  // Só pra quem já está logado: o usuarioId vem do token (req.usuario), nunca
+  // Só pra quem já está logado: o usuarioId vem da sessão (req.usuario), nunca
   // do corpo — senão dava pra trocar a senha de outra pessoa.
   async alterarSenha(usuarioId, senhaAtual, novaSenha) {
     const user = await buscarUsuarioAtivo(usuarioId);

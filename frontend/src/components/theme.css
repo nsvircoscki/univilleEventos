@@ -1,0 +1,92 @@
+:root { --surface:#ffffff; --surface-muted:#f5f6f2; --page:#fafbf9; --accent:#005f36; }
+:root[data-theme='dark'] {
+  --surface:#1b2920;
+  --surface-muted:#233329;
+  --page:#111c15;
+  --text:#e6eee8;
+  --muted:#aab9af;
+  --line:#37483d;
+  --accent:#a0d57c;
+  --brand-tint:#263f2d;
+}
+.theme-toggle { display:inline-grid; place-items:center; width:36px; height:36px; padding:7px; border:1px solid var(--line); border-radius:7px; background:var(--surface); color:var(--text); }
+.theme-floating { position:absolute; z-index:2; top:18px; right:18px; }
+html[data-theme='dark'] body { background:var(--page); color:var(--text); }
+html[data-theme='dark'] .app-header { background:var(--surface-muted); }
+html[data-theme='dark'] .app-header nav button { color:var(--muted); background:transparent; }
+html[data-theme='dark'] .app-header nav button[aria-current] { background:var(--surface); color:var(--accent); border-color:var(--accent); }
+html[data-theme='dark'] .app-header nav button:hover { background:var(--surface); color:var(--accent); }
+html[data-theme='dark'] .agenda-workspace,
+html[data-theme='dark'] .mini-calendar-heading button,
+html[data-theme='dark'] .calendar-toolbar button,
+html[data-theme='dark'] .year-month-title,
+html[data-theme='dark'] .event-form,
+html[data-theme='dark'] .event-request,
+html[data-theme='dark'] .event-empty,
+html[data-theme='dark'] .event-page input,
+html[data-theme='dark'] .event-page select,
+html[data-theme='dark'] .event-page textarea,
+html[data-theme='dark'] .event-page button,
+html[data-theme='dark'] .styled-dropdown .styled-dropdown-trigger,
+html[data-theme='dark'] .styled-dropdown-list,
+html[data-theme='dark'] .event-popover { background:var(--surface); color:var(--text); }
+html[data-theme='dark'] .calendar-day,
+html[data-theme='dark'] .schedule-heading,
+html[data-theme='dark'] .schedule-heading button { background-color:var(--surface); color:var(--text); }
+html[data-theme='dark'] .calendar-day.outside,
+html[data-theme='dark'] .weekday,
+html[data-theme='dark'] .schedule-column.weekend,
+html[data-theme='dark'] .agenda-note { background-color:#162119; }
+html[data-theme='dark'] .calendar-day.selected,
+html[data-theme='dark'] .calendar-day:hover,
+html[data-theme='dark'] .mini-grid button:hover,
+html[data-theme='dark'] .styled-dropdown .styled-option.active { background:var(--surface-muted); }
+html[data-theme='dark'] .mini-grid button { color:var(--text); }
+html[data-theme='dark'] .mini-grid button.outside,
+html[data-theme='dark'] .calendar-day.outside { color:#7e9083; }
+html[data-theme='dark'] .mini-grid button[aria-pressed=true],
+html[data-theme='dark'] .calendar-toolbar button[aria-pressed=true],
+html[data-theme='dark'] .calendar-day.today .month-day-number { background:var(--brand-green); color:white; }
+html[data-theme='dark'] .agenda-selected strong,
+html[data-theme='dark'] .styled-dropdown .styled-option[aria-selected=true],
+html[data-theme='dark'] .styled-dropdown-trigger > svg,
+html[data-theme='dark'] .month-more { color:var(--accent); }
+html[data-theme='dark'] .calendar-day .month-event,
+html[data-theme='dark'] .schedule-event,
+html[data-theme='dark'] .sidebar-events button { background:#294a34; color:#d9f2d1; }
+html[data-theme='dark'] .calendar-day .month-event:hover { background:#365d40; }
+html[data-theme='dark'] .event-page .event-primary { background:var(--brand-green); color:white; }
+html[data-theme='dark'] .event-error { background:#48222b; color:#ffd4dc !important; border-color:#7a3d4c; }
+html[data-theme='dark'] .event-page .event-reject { color:#ffc6d2; }
+html[data-theme='dark'] .status-PENDENTE { background:#493c1b; color:#f9dfa0; }
+html[data-theme='dark'] .status-APROVADO { background:#294a34; color:#d2efc9; }
+html[data-theme='dark'] .status-RECUSADO { background:#48222b; color:#ffd4dc; }
+html[data-theme='dark'] .portal-login { background-image:linear-gradient(#08170fb3,#08170fb3),url('../assets/login/fundo-portal.jpg'); }
+html[data-theme='dark'] .portal-login-card { background:var(--surface); border:1px solid var(--line); }
+html[data-theme='dark'] .portal-login-logo { content:url('../assets/brand/univille-horizontal-branca.png'); width:280px; height:auto; margin-top:-18px; margin-bottom:15px; max-width:100%; }
+html[data-theme='dark'] .portal-login-field input,
+html[data-theme='dark'] .register-form input { background:var(--surface-muted); color:var(--text); }
+html[data-theme='dark'] .portal-login-field input::placeholder { color:var(--muted); }
+html[data-theme='dark'] .portal-login-help,
+html[data-theme='dark'] .register-form label,
+html[data-theme='dark'] .register-form > p,
+html[data-theme='dark'] .portal-login-greeting { color:var(--text); }
+html[data-theme='dark'] .portal-login-message { background:var(--surface-muted); color:var(--text); }
+html[data-theme='dark'] .portal-login-message.portal-login-error { color:#ffc6d2; }
+html[data-theme='dark'] :focus-visible { outline-color:var(--accent); }
+@media(max-width:600px) { .brand-bar .account-actions button.theme-toggle { padding:6px; width:30px; height:32px; } }
+
+.brand-bar > .brand-logo, .brand-bar > .account-actions { grid-row:1; }
+.brand-bar > .theme-toggle { grid-column:1; grid-row:1; justify-self:start; color:white; border-color:#ffffff55; background:transparent; }
+html[data-theme='dark'] .portal-password-toggle { color:var(--muted); }
+html[data-theme='dark'] .mini-grid button.today { color:var(--accent); }
+html[data-theme='dark'] .schedule-heading button[aria-pressed=true] { background:var(--brand-tint); }
+html[data-theme='dark'] .site-footer { background:var(--surface); color:var(--text); }
+html[data-theme='dark'] .footer-social-band { background:var(--page); }
+html[data-theme='dark'] .footer-copyright { background:var(--surface-muted); color:var(--muted); }
+html[data-theme='dark'] .site-footer a { color:var(--text); }
+html[data-theme='dark'] .site-footer a:hover,
+html[data-theme='dark'] .footer-links h2 { color:var(--accent); }
+html[data-theme='dark'] .site-footer .footer-student { color:#193e24; }
+@media(max-width:600px) { .brand-bar > .theme-toggle { width:32px; height:32px; padding:6px; } }
+

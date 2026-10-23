@@ -1,33 +1,51 @@
-# Backup do banco de dados — não deve ir para o GitHub
-backup_fabrica.dump
+﻿# Dependências e saídas de build
+node_modules/
+dist/
+dist-ssr/
+build/
+coverage/
+.vite/
+.cache/
+*.tsbuildinfo
 
-# Dumps de curl/scripts de teste avulsos usados durante o desenvolvimento
-resp.txt
-backend/resp.txt
-backend/_tmp_*
-
-# Arquivo compactado redundante — a versão extraída já está em backend/Modelos/
-backend/Modelos.rar
-
-# Dump real do banco de produção e listagem de pastas do servidor — dados
-# reais de clientes, usado só localmente para planejar a migração.
-backend/backup_antigo/
-
-*.crt
+# Credenciais e configurações locais (somente modelos são versionados)
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
 *.key
 *.pem
+*.crt
+*.p12
+*.pfx
+.aws/
 
-# Dependências
-node_modules/
-**/node_modules/
+# Logs e arquivos de execução local
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.pid
 
-# Ambientes e builds
-.env
-dist/
-build/
+# Backups locais do banco (migrations SQL continuam versionadas)
+*.dump
+*.backup
+*.bak
+backups/
+backend/pgdata/
 
-
-# Dados do SisPonto (registros de ponto reais). O backend reescreve esse
-# arquivo a cada batida; versionado, um git pull em produção falharia ou
-# sobrescreveria os registros. O serviço cria o arquivo sozinho se faltar.
-backend/data/sis-ponto.json
+# Sistema, editores e ferramentas locais
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+.worktrees/
+playwright-report/
+test-results/
