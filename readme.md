@@ -92,7 +92,7 @@ npm.cmd run db:admin
 
 O script lê os campos `ADMIN_*`, cria os perfis `ADMIN` e `USUARIO`, grava a senha com hash e cria o primeiro administrador. Ele **não sobrescreve** uma conta já existente: se o login estiver cadastrado, informa o problema e encerra.
 
-Trocar `ADMIN_SENHA` no `.env` depois de criar a conta **não altera a senha já gravada**. Faça alterações de senha pela aplicação. Uma conta criada pelo cadastro público sempre recebe `USUARIO`; somente um administrador pode atribuir o perfil administrativo.
+Trocar `ADMIN_SENHA` no `.env` depois de criar a conta **não altera a senha já gravada**. Faça alterações de senha pela aplicação. Após a criação do primeiro administrador, somente administradores podem criar contas e atribuir os perfis `USUARIO` ou `ADMIN` pela área **Usuários**.
 
 ### 6. Rodar a aplicação
 
@@ -143,8 +143,8 @@ npm.cmd run dev
 ## Fluxos da aplicação
 
 - **Visitante:** consulta somente o calendário público do mês atual e dos dois meses seguintes. Os dados pessoais do solicitante e os eventos pendentes/recusados não aparecem na API pública.
-- **Criar conta:** na página `/login`, clique em **Criar conta**. Preencha nome, e-mail, usuário e senha em `/cadastro`. O cadastro entra na conta automaticamente e redireciona ao calendário. Nunca concede perfil de administrador.
-- **Entrar e sair:** login e cadastro são páginas próprias. Ao entrar, retorna ao calendário autenticado. O botão **Sair** fica no canto superior direito da faixa verde e retorna ao calendário público.
+- **Criar conta:** exclusivo de administradores na área **Usuários**. Não há cadastro público no login; o endereço antigo `/cadastro` encaminha para `/login` e a API de cadastro público recusa solicitações.
+- **Entrar e sair:** o login tem página própria em `/login`. Ao entrar, retorna ao calendário autenticado. O botão **Sair** fica no canto superior direito da faixa verde e retorna ao calendário público.
 - **Solicitante:** em **Solicitar evento**, use **Nova palestra** para criar uma solicitação e **Editar aprovadas** para alterar suas palestras já aprovadas. Ao enviar alterações, o evento volta para `PENDENTE`, sai do calendário público e exige nova aprovação. Palestras anteriores podem ser selecionadas e reagendadas para uma data futura. Também é possível salvar rascunhos, editar solicitações pendentes e recusadas, acompanhar o andamento, excluir rascunhos e cancelar solicitações pendentes.
 - **Aprovar solicitações:** disponível ao `ADMIN`. Permite aprovar ou recusar. A recusa exige motivo. Um evento só aparece no calendário público depois de aprovado.
 - **Administrador:** além dos fluxos de solicitante, pode cadastrar e inativar usuários. A inativação exige confirmação e a senha atual do administrador. Pode editar todas as palestras aprovadas; essas alterações também exigem reaprovação. Pode exportar relatórios de solicitações, eventos aprovados (incluindo anteriores) e usuários em CSV.
@@ -197,14 +197,13 @@ Sem a variável, o teste de integração é marcado como ignorado. Os testes de 
 - `frontend/src/page/CalendarioView.jsx` e `CalendarioEventos.jsx`: calendário público e blocos de horários.
 - `frontend/src/page/EventosView.jsx`: solicitação, acompanhamento e análise.
 - `frontend/src/page/UsuariosView.jsx`: administração de usuários.
-- `frontend/src/page/CadastroUsuarioView.jsx`: cadastro público.
 - `backend/src/routes` e `backend/src/services`: APIs, autenticação e regras de reserva.
 - `backend/prisma`: schema e histórico de migrations.
 - `backend/scripts/criarAdmin.mjs`: criação explícita do primeiro administrador.
 
 A criação de uma solicitação não dispara e-mails. A aprovação, recusa e acompanhamento acontecem na aplicação. Locais ainda são informados por nome; não há cadastro separado de espaços ou integração com o Portal do Aluno.
 
-O build de produção fica em `frontend/dist`. A hospedagem deve servir esse diretório com fallback para `index.html` nas rotas `/login` e `/cadastro`, encaminhar `/api` ao backend e fornecer as variáveis de ambiente de produção. `npm run dev` serve ao desenvolvimento.
+O build de produção fica em `frontend/dist`. A hospedagem deve servir esse diretório com fallback para `index.html` em `/login` e nos endereços antigos de `/cadastro`, encaminhar `/api` ao backend e fornecer as variáveis de ambiente de produção. `npm run dev` serve ao desenvolvimento.
 
 ## Arquivos locais e Git
 

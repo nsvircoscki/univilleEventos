@@ -9,13 +9,12 @@ import { AlterarSenhaModal } from './modals/AlterarSenhaModal';
 import { authService } from './services/authService';
 import { api } from './services/api';
 import { BrandBar } from './components/BrandLogo';
-import CadastroUsuarioView from './page/CadastroUsuarioView';
 import Footer from './components/Footer';
 import ThemeToggle from './components/ThemeToggle';
 import RelatoriosView from './page/RelatoriosView';
 import CadastrosView from './page/CadastrosView';
 
-const telaDaUrl = () => window.location.pathname === '/login' ? 'login' : window.location.pathname === '/cadastro' ? 'cadastro' : 'calendario';
+const telaDaUrl = () => ['/login', '/cadastro'].includes(window.location.pathname) ? 'login' : 'calendario';
 
 export default function App() {
   const [intro, setIntro] = useState(false);
@@ -26,7 +25,7 @@ export default function App() {
   const [erro, setErro] = useState('');
   const [tela, setTelaEstado] = useState(telaDaUrl);
   const setTela = (destino) => {
-    const url = destino === 'login' ? '/login' : destino === 'cadastro' ? '/cadastro' : '/';
+    const url = destino === 'login' ? '/login' : '/';
     if (window.location.pathname !== url) window.history.pushState({}, '', url);
     setTelaEstado(destino);
   };
@@ -46,7 +45,11 @@ export default function App() {
   }, []);
   useEffect(() => { carregarEventos(); }, [carregarEventos]);
   useEffect(() => {
-    const voltar = () => setTelaEstado(telaDaUrl());
+    const voltar = () => {
+      if (window.location.pathname === '/cadastro') window.history.replaceState({}, '', '/login');
+      setTelaEstado(telaDaUrl());
+    };
+    voltar();
     window.addEventListener('popstate', voltar);
     return () => window.removeEventListener('popstate', voltar);
   }, []);
@@ -96,8 +99,7 @@ export default function App() {
     } catch { setErro('Não foi possível encerrar a sessão. Tente novamente.'); }
     finally { setSaindo(false); }
   };
-  if (tela === 'cadastro' && !usuario) return <><ThemeToggle floating /><CadastroUsuarioView onCadastrado={concluirAcesso} onLogin={abrirLogin} /></>;
-  if (tela === 'login' && !usuario) return <><ThemeToggle floating /><LoginView aviso={erro} onCadastro={() => setTela('cadastro')} onLogin={concluirAcesso} /></>;
+  if (tela === 'login' && !usuario) return <><ThemeToggle floating /><LoginView aviso={erro} onLogin={concluirAcesso} /></>;
   const admin = usuario?.setor === 'ADMIN';
   return <>
     <BrandBar>

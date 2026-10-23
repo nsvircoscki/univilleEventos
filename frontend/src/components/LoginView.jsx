@@ -11,7 +11,7 @@ const lerUltimoLogin = () => {
   try { return localStorage.getItem(CHAVE_ULTIMO_LOGIN) || ''; } catch { return ''; }
 };
 
-export function LoginView({ onLogin, aviso, onCadastro }) {
+export function LoginView({ onLogin, aviso }) {
   const [senhaInput, setSenhaInput] = useState('');
   const [confirmarSenhaInput, setConfirmarSenhaInput] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -136,7 +136,6 @@ export function LoginView({ onLogin, aviso, onCadastro }) {
             {carregando ? 'Acessando…' : modo === 'criar-senha' ? 'Criar senha e acessar' : 'Acessar'}
           </button>
         </form>
-        <button className="portal-login-help portal-create-account" type="button" onClick={onCadastro}>Criar conta</button>
         <button className="portal-login-help" type="button" onClick={() => setAjuda((atual) => !atual)} aria-expanded={ajuda} aria-controls="portal-login-help-text">Esqueceu sua senha?</button>
         {ajuda && <p className="portal-login-message" id="portal-login-help-text" role="status">Solicite à administração da agenda a redefinição da sua senha.</p>}
       </section>

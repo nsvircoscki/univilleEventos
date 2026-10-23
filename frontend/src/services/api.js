@@ -9,12 +9,11 @@ async function req(path, method = 'GET', body) {
     headers: { ...(body ? { 'Content-Type': 'application/json' } : {}) },
     ...(body ? { body: JSON.stringify(body) } : {}),
   });
-  if (res.status === 401 && !['/auth/me', '/auth/login', '/auth/cadastro'].includes(path)) aoPerderSessao?.();
+  if (res.status === 401 && !['/auth/me', '/auth/login'].includes(path)) aoPerderSessao?.();
   return { data: await res.json(), ok: res.ok };
 }
 export const api = {
   sair: () => req('/auth/sair', 'POST'),
-  cadastrar: (dados) => req('/auth/cadastro', 'POST', dados),
   getEventos: () => req('/eventos'),
   verificarDisponibilidade: (ambienteId, inicio, fim, ignorarId = '') => {
     const params = new URLSearchParams({ ambienteId, inicio, fim, ...(ignorarId ? { ignorarId } : {}) });
