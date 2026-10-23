@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 import Dropdown from '../Dropdown';
 /* ────────────────────────────────────────────────────────────
    Kit de UI compartilhado pelas telas de Cadastro (Cliente,
@@ -90,9 +91,10 @@ export function Reveal({ open, children }) {
 /* ── Campo de texto ── */
 export function Field({
   label, icon, value, onChange, placeholder, type = 'text', span = 1,
-  textarea, rows = 3, disabled, onBlur, hint, list, labelAction,
+  textarea, rows = 3, disabled, onBlur, hint, list, labelAction, revelar = false,
 }) {
   const [focus, setFocus] = useState(false);
+  const [visivel, setVisivel] = useState(false);
   const base = {
     width: '100%', boxSizing: 'border-box',
     border: `1.5px solid ${focus ? C.navy : C.border}`,
@@ -127,10 +129,15 @@ export function Field({
             onChange={e => onChange(e.target.value)} onFocus={() => setFocus(true)}
             onBlur={() => { setFocus(false); onBlur?.(); }} style={{ ...base, fontFamily: 'inherit' }} />
         ) : (
-          <input type={type} value={value} placeholder={placeholder} disabled={disabled} list={list}
+          <input type={revelar && visivel ? 'text' : type} value={value} placeholder={placeholder} disabled={disabled} list={list}
             onChange={e => onChange(e.target.value)} onFocus={() => setFocus(true)}
-            onBlur={() => { setFocus(false); onBlur?.(); }} style={base} />
+            onBlur={() => { setFocus(false); onBlur?.(); }} style={{ ...base, paddingRight: revelar ? 42 : base.padding }} />
         )}
+        {revelar && !textarea && <button type="button" onClick={() => setVisivel((atual) => !atual)}
+          aria-label={visivel ? `Ocultar ${label.toLowerCase()}` : `Revelar ${label.toLowerCase()}`}
+          style={{ position: 'absolute', right: 9, top: '50%', transform: 'translateY(-50%)', border: 0, background: 'transparent', color: C.muted, cursor: 'pointer', padding: 5 }}>
+          {visivel ? <EyeOff size={17} aria-hidden="true" /> : <Eye size={17} aria-hidden="true" />}
+        </button>}
       </div>
       {hint && <p style={{ fontFamily: SANS, fontSize: 11, color: C.muted, margin: '5px 2px 0' }}>{hint}</p>}
     </div>
@@ -549,7 +556,7 @@ export function Actions({ editing, accent, onSave, onDelete, saving, saveLabel }
 /* ── Modal de confirmação (ex.: excluir um registro) — substitui o
    window.confirm() nativo do navegador por algo consistente com o resto
    do sistema. ── */
-export function ConfirmModal({ title, message, confirmLabel = 'Excluir', cancelLabel = 'Cancelar', danger = true, onConfirm, onCancel }) {
+export function ConfirmModal({ title, message, children, confirmLabel = 'Excluir', cancelLabel = 'Cancelar', danger = true, onConfirm, onCancel }) {
   const cor = danger ? C.danger : C.navy;
   return (
     <div style={{
@@ -568,6 +575,7 @@ export function ConfirmModal({ title, message, confirmLabel = 'Excluir', cancelL
         </div>
         <h3 style={{ fontFamily: MONT, fontWeight: 700, fontSize: 16, color: C.text, margin: '0 0 8px' }}>{title}</h3>
         {message && <p style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, margin: 0, lineHeight: 1.5 }}>{message}</p>}
+        {children}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 24 }}>
           <button onClick={onCancel} style={{
             padding: '11px 22px', borderRadius: 11, border: `1.5px solid ${C.border}`, background: 'var(--surface, #fff)',

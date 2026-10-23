@@ -11,6 +11,8 @@ router.get('/setores', usuarioController.setores);
 router.post('/', usuarioController.criar);
 router.put('/:id', usuarioController.atualizar);
 router.put('/:id/senha', usuarioController.definirSenha);
+router.get('/relatorios/:tipo/dados', usuarioController.consultarRelatorio);
+router.get('/relatorios/:tipo', usuarioController.relatorio);
 
 
 export default router;

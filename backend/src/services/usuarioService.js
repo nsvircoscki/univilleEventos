@@ -84,7 +84,7 @@ async function criar(dados) {
 
 // Não existe exclusão: desativar (ativo: false) tira a pessoa do login e corta
 // o acesso na hora, preservando o cadastro.
-async function atualizar(id, dados, idQuemEdita) {
+async function atualizar(id, dados, idQuemEdita, senhaAdmin) {
   const atual = await prisma.user.findUnique({ where: { id }, include: { role: true } });
   if (!atual) throw new Error('Pessoa não encontrada.');
 
@@ -103,6 +103,12 @@ async function atualizar(id, dados, idQuemEdita) {
   }
   if (id === idQuemEdita && role.name !== atual.role.name) {
     throw new Error('Você não pode mudar o próprio setor — perderia o acesso de administrador.');
+  }
+  if (atual.ativo && dados.ativo === false) {
+    const administrador = await prisma.user.findUnique({ where: { id: idQuemEdita } });
+    if (!administrador?.password_hash || !senhaAdmin || !(await bcrypt.compare(senhaAdmin, administrador.password_hash))) {
+      throw new Error('A senha atual do administrador é obrigatória para confirmar a inativação.');
+    }
   }
 
   const user = await prisma.user.update({
@@ -132,4 +138,17 @@ async function listarSetores() {
   return roles.map((r) => r.name);
 }
 
-export const usuarioService = { listar, criar, atualizar, definirSenha, listarSetores };
+async function relatorio(tipo, filtros = {}) {
+  if (tipo === 'usuarios') return prisma.user.findMany({ include: { role: true } });
+  const where = tipo === 'eventos-aprovados' ? { status: 'APROVADO' } : {};
+  if (filtros.dataInicial) where.inicio = { ...(where.inicio || {}), gte: new Date(`${filtros.dataInicial}T00:00:00`) };
+  if (filtros.dataFinal) where.fim = { ...(where.fim || {}), lte: new Date(`${filtros.dataFinal}T23:59:59.999`) };
+  if (filtros.cursoId) where.cursoId = filtros.cursoId;
+  if (filtros.temaId) where.temaId = filtros.temaId;
+  return prisma.evento.findMany({
+    where,
+    include: { solicitante: true, curso: true, temaRef: true },
+    orderBy: { inicio: 'desc' },
+  });
+}
+export const usuarioService = { listar, criar, atualizar, definirSenha, listarSetores, relatorio };

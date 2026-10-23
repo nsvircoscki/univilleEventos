@@ -14,16 +14,27 @@ export function diasDoMes(mes) {
 const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const dataLocal = (chave) => new Date(`${chave}T12:00:00`);
 const primeiroDoMes = (dia) => new Date(dia.getFullYear(), dia.getMonth(), 1);
+const indiceMes = (dia) => dia.getFullYear() * 12 + dia.getMonth();
 
-export default function CalendarioView({ eventos = [], erro, onRecarregar, onSolicitar }) {
+export default function CalendarioView({ eventos = [], erro, onRecarregar, onSolicitar, autenticado = false, publicoLimitado = false, podeEditar = false, onEditar }) {
   const [mes, setMes] = useState(() => primeiroDoMes(new Date()));
   const [selecionado, setSelecionado] = useState(() => chaveData(new Date()));
   const [visualizacao, setVisualizacao] = useState('mes');
   const [detalhe, setDetalhe] = useState(null);
   const hoje = chaveData(new Date());
+  const mesAtual = primeiroDoMes(new Date());
+  const limiteMesPublico = new Date(mesAtual.getFullYear(), mesAtual.getMonth() + 2, 1);
+  const mesAtualIndice = indiceMes(mesAtual);
+  const limiteMesPublicoIndice = indiceMes(limiteMesPublico);
   const dataSelecionada = dataLocal(selecionado);
-  const selecionar = (dia) => { setSelecionado(chaveData(dia)); setMes(primeiroDoMes(dia)); };
+  const selecionar = (dia) => {
+    const mesSelecionado = primeiroDoMes(dia);
+    if (publicoLimitado && (indiceMes(mesSelecionado) < mesAtualIndice || indiceMes(mesSelecionado) > limiteMesPublicoIndice)) return;
+    setSelecionado(chaveData(dia)); setMes(mesSelecionado);
+  };
   const mudarPeriodo = (passo) => {
+    const proximoIndice = indiceMes(mes) + passo;
+    if (publicoLimitado && (proximoIndice < mesAtualIndice || proximoIndice > limiteMesPublicoIndice)) return;
     if (visualizacao === 'ano') {
       selecionar(new Date(mes.getFullYear() + passo, mes.getMonth(), 1));
     } else if (visualizacao === 'mes') {
@@ -49,20 +60,22 @@ export default function CalendarioView({ eventos = [], erro, onRecarregar, onSol
   return <main className="agenda">
     <div className="agenda-heading">
       <div><h1>Calendário de eventos</h1><p>Organize seus encontros em um só lugar.</p></div>
-      <button className="calendar-request-button" onClick={() => onSolicitar(selecionado)}><CalendarPlus size={20} strokeWidth={1.4} aria-hidden="true" />Solicitar evento</button>
+      {autenticado && <button className="calendar-request-button" onClick={() => onSolicitar(selecionado)}><CalendarPlus size={20} strokeWidth={1.4} aria-hidden="true" />Solicitar evento</button>}
     </div>
     <div className="agenda-workspace">
       <aside className="agenda-sidebar" aria-label="Navegação por data">
         <section className="mini-calendar">
           <div className="mini-calendar-heading"><h2>{mes.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h2>
-            <div><button onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1))} aria-label="Mês anterior no calendário pequeno"><ChevronLeft size={16} /></button>
-              <button onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() + 1, 1))} aria-label="Próximo mês no calendário pequeno"><ChevronRight size={16} /></button></div>
+            <div><button disabled={publicoLimitado && indiceMes(mes) <= mesAtualIndice} onClick={() => mudarPeriodo(-1)} aria-label="Mês anterior no calendário pequeno"><ChevronLeft size={16} /></button>
+              <button disabled={publicoLimitado && indiceMes(mes) >= limiteMesPublicoIndice} onClick={() => mudarPeriodo(1)} aria-label="Próximo mês no calendário pequeno"><ChevronRight size={16} /></button></div>
           </div>
           <div className="mini-grid">
             {diasSemana.map((dia) => <span className="mini-weekday" key={dia}>{dia.slice(0, 1)}</span>)}
             {diasDoMes(mes).map((dia) => <button key={chaveData(dia)} type="button"
               className={`${dia.getMonth() !== mes.getMonth() ? 'outside' : ''} ${chaveData(dia) === hoje ? 'today' : ''}`}
-              aria-label={dia.toLocaleDateString('pt-BR')} aria-pressed={chaveData(dia) === selecionado} onClick={() => selecionar(dia)}>{dia.getDate()}</button>)}
+              aria-label={dia.toLocaleDateString('pt-BR')} aria-pressed={chaveData(dia) === selecionado}
+              disabled={publicoLimitado && (indiceMes(dia) < mesAtualIndice || indiceMes(dia) > limiteMesPublicoIndice)}
+              onClick={() => selecionar(dia)}>{dia.getDate()}</button>)}
           </div>
         </section>
         <section className="agenda-selected"><span className="agenda-eyebrow">DATA SELECIONADA</span>
@@ -74,12 +87,12 @@ export default function CalendarioView({ eventos = [], erro, onRecarregar, onSol
       <section className="calendar-panel" aria-label="Calendário de eventos">
         <div className="calendar-toolbar">
           <div className="calendar-period"><button className="today-button" onClick={() => selecionar(new Date())}>Hoje</button>
-            <div className="calendar-arrows"><button onClick={() => mudarPeriodo(-1)} aria-label="Período anterior"><ChevronLeft size={18} /></button>
-              <button onClick={() => mudarPeriodo(1)} aria-label="Próximo período"><ChevronRight size={18} /></button></div>
+            <div className="calendar-arrows"><button disabled={publicoLimitado && indiceMes(mes) <= mesAtualIndice} onClick={() => mudarPeriodo(-1)} aria-label="Período anterior"><ChevronLeft size={18} /></button>
+              <button disabled={publicoLimitado && indiceMes(mes) >= limiteMesPublicoIndice} onClick={() => mudarPeriodo(1)} aria-label="Próximo período"><ChevronRight size={18} /></button></div>
             <h2 aria-live="polite">{titulo}</h2>
           </div>
           <div className="calendar-view-switch" role="group" aria-label="Visualização do calendário">
-            {[['mes', 'Mês'], ['semana', 'Semana'], ['dia', 'Dia'], ['ano', 'Ano']].map(([valor, rotulo]) =>
+            {[['mes', 'Mês'], ...(!publicoLimitado ? [['semana', 'Semana'], ['dia', 'Dia'], ['ano', 'Ano']] : [])].map(([valor, rotulo]) =>
               <button key={valor} aria-pressed={visualizacao === valor} onClick={() => setVisualizacao(valor)}>{rotulo}</button>)}
           </div>
         </div>
@@ -109,6 +122,6 @@ export default function CalendarioView({ eventos = [], erro, onRecarregar, onSol
         <div className="calendar-footer"><span><i /> Hoje</span><span>Selecione uma data para consultar a agenda</span></div>
       </section>
     </div>
-    {detalhe && <DetalheEvento evento={detalhe} onClose={() => setDetalhe(null)} />}
+    {detalhe && <DetalheEvento evento={detalhe} onClose={() => setDetalhe(null)} podeEditar={podeEditar} onEditar={onEditar} />}
   </main>;
 }

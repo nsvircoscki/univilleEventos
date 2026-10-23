@@ -2,6 +2,8 @@
 
 Calendário público com visualizações de dia, semana, mês e ano. Qualquer visitante pode consultar os eventos aprovados. Para solicitar um evento é necessário entrar ou criar uma conta; a administração analisa as solicitações e gerencia os usuários.
 
+# No desevolvimento foi utilizado agentes de IA
+
 ## Pré-requisitos
 
 - Git.
@@ -43,10 +45,10 @@ Edite `backend/.env` **antes de iniciar o banco**:
 POSTGRES_USER=univille
 POSTGRES_PASSWORD=escolha-uma-senha-local
 POSTGRES_DB=univille
-POSTGRES_PORT=5433
-DATABASE_URL=postgresql://univille:escolha-uma-senha-local@localhost:5433/univille
-PORT=3001
-CORS_ORIGENS=http://localhost:5174
+POSTGRES_PORT=55432
+DATABASE_URL=postgresql://univille:escolha-uma-senha-local@localhost:55432/univille
+PORT=3301
+CORS_ORIGENS=http://localhost:55174
 ADMIN_NOME=Administrador
 ADMIN_EMAIL=seu-email@exemplo.com
 ADMIN_LOGIN=admin
@@ -76,7 +78,7 @@ npm.cmd run db:generate
 npm.cmd run db:migrate
 ```
 
-O Compose cria um PostgreSQL 15 na porta local `5433`, com volume persistente próprio. As migrations criam os perfis, usuários e a estrutura de solicitações de eventos; os dados de usuários e os perfis iniciais são cadastrados pelo comando a seguir.
+O Compose cria um PostgreSQL 15 na porta local `55432`, com volume persistente próprio. As migrations criam os perfis, usuários e a estrutura de solicitações de eventos; os dados de usuários e os perfis iniciais são cadastrados pelo comando a seguir.
 
 Use um banco exclusivo da Univille. Não aplique essas migrations ao banco CCF. Quando estiver em outro computador, use o seu próprio volume e o seu próprio `.env`.
 
@@ -101,13 +103,13 @@ cd ..
 npm.cmd run dev
 ```
 
-- Aplicação: http://localhost:5174
-- API: http://localhost:3001
-- Verificação da API: http://localhost:3001/health
+- Aplicação: http://localhost:55174
+- API: http://localhost:3301
+- Verificação da API: http://localhost:3301/health
 
 O site abre no calendário sem exigir login. A autenticação usa sessões de 12 horas no PostgreSQL e cookie `HttpOnly` / `SameSite=Lax`, sem JWT e sem token de acesso no `localStorage`. O `JWT_SECRET` não é mais usado; se existir em um `.env` antigo, pode ser removido. Em produção, configure `NODE_ENV=production` e HTTPS para o cookie `Secure`. Clique em **Entrar** no canto superior direito da faixa verde da Univille e use `ADMIN_LOGIN` e `ADMIN_SENHA` para entrar pela primeira vez.
 
-Não é necessário criar um `.env` no frontend. O Vite encaminha `/api` para a API local na porta 3001.
+Não é necessário criar um `.env` no frontend. O Vite encaminha `/api` para a API local na porta 3301.
 
 ## Executar nas próximas vezes
 
@@ -140,12 +142,14 @@ npm.cmd run dev
 
 ## Fluxos da aplicação
 
-- **Visitante:** consulta o calendário público em dia, semana, mês ou ano. Os dados pessoais do solicitante e os eventos pendentes/recusados não aparecem na API pública.
+- **Visitante:** consulta somente o calendário público do mês atual e dos dois meses seguintes. Os dados pessoais do solicitante e os eventos pendentes/recusados não aparecem na API pública.
 - **Criar conta:** na página `/login`, clique em **Criar conta**. Preencha nome, e-mail, usuário e senha em `/cadastro`. O cadastro entra na conta automaticamente e redireciona ao calendário. Nunca concede perfil de administrador.
 - **Entrar e sair:** login e cadastro são páginas próprias. Ao entrar, retorna ao calendário autenticado. O botão **Sair** fica no canto superior direito da faixa verde e retorna ao calendário público.
-- **Solicitar evento:** após entrar, preencha título, espaço, início, término e descrição. A solicitação começa como `PENDENTE`. Consulte o andamento em **Minhas solicitações**.
+- **Solicitante:** após entrar, pode salvar rascunhos, editar rascunhos e solicitações pendentes, enviar solicitações, acompanhar o andamento, excluir rascunhos e cancelar solicitações pendentes. Não pode alterar eventos aprovados.
 - **Aprovar solicitações:** disponível ao `ADMIN`. Permite aprovar ou recusar. A recusa exige motivo. Um evento só aparece no calendário público depois de aprovado.
+- **Administrador:** além dos fluxos de solicitante, pode cadastrar e inativar usuários. A inativação exige confirmação e a senha atual do administrador. Também pode editar palestras aprovadas e exportar relatórios de solicitações, eventos aprovados (incluindo anteriores) e usuários em CSV.
 - **Conflitos:** não é possível aprovar eventos simultâneos no mesmo espaço, incluindo decisões concorrentes. Horários encostados são permitidos. O espaço é identificado pelo nome normalizado (ignorando maiúsculas, acentos e espaços repetidos); use nomes consistentes.
+- **Relatórios:** a administração pode filtrar solicitações e eventos aprovados por período, curso/coordenação e tema, e exportar os mesmos campos filtrados em CSV.
 - **Criar usuário pela administração:** entre como `ADMIN`, abra **Usuários**, clique em **Criar usuário**, preencha os dados e a senha inicial e selecione `USUARIO` ou `ADMIN`. Essa tela também permite editar, desativar e redefinir senhas.
 - Horários são digitados e exibidos no fuso local do navegador e transmitidos à API como instantes ISO; o banco armazena esses instantes em UTC.
 
@@ -159,6 +163,8 @@ npm.cmd run build --prefix frontend
 ```
 
 Os testes de integração com banco são opcionais e exigem o banco de desenvolvimento configurado, migrations aplicadas, Prisma gerado. Eles criam e removem somente registros de teste; não execute contra produção.
+
+O projeto usa somente dados fictícios e mantém credenciais locais no `.env`, que não deve ser publicado. A implementação foi desenvolvida com apoio de assistentes de programação (GitHub Copilot/Copilot SDK); as funcionalidades específicas, integrações e validações foram implementadas e revisadas neste repositório.
 
 ```powershell
 cd backend
@@ -182,8 +188,8 @@ Sem a variável, o teste de integração é marcado como ignorado. Os testes de 
 | Login já cadastrado no primeiro admin | O script não redefine contas. Entre com a senha gravada ou solicite redefinição a outro administrador. |
 | 400 ao entrar | Leia a mensagem exibida na tela. Confira usuário, senha e conexão com o banco. |
 | 429 ao entrar/cadastrar | Aguarde a janela de 15 minutos do limitador; em desenvolvimento, reiniciar a API limpa os contadores em memória. |
-| `/api` não responde | Confirme a API na porta 3001 e o frontend na 5174. |
-| Porta 5174 ocupada | Encerre a outra instância do frontend; a porta é fixa. |
+| `/api` não responde | Confirme a API na porta 3301 e o frontend na 55174. |
+| Porta 55174 ocupada | Encerre a outra instância do frontend; a porta é fixa. |
 | Alterou o `.env`, mas nada mudou | Reinicie o backend. Variáveis de ambiente são lidas ao iniciar. |
 
 ## Estrutura e limites atuais

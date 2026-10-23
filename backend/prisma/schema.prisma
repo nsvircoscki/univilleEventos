@@ -22,6 +22,43 @@ model User {
   decisoes      Evento[] @relation("Revisor")
   sessoes       Sessao[]
 }
+model Tema {
+  id String @id @default(uuid())
+  nome String @unique
+  eventos Evento[]
+}
+model Recurso {
+  id String @id @default(uuid())
+  nome String @unique
+  ambientes AmbienteRecurso[]
+  eventos EventoRecurso[]
+}
+model Ambiente {
+  id String @id @default(uuid())
+  nome String @unique
+  recursos AmbienteRecurso[]
+  eventos Evento[]
+}
+model AmbienteRecurso {
+  ambienteId String
+  recursoId String
+  ambiente Ambiente @relation(fields: [ambienteId], references: [id], onDelete: Cascade)
+  recurso Recurso @relation(fields: [recursoId], references: [id], onDelete: Cascade)
+  @@id([ambienteId, recursoId])
+}
+model Curso {
+  id String @id @default(uuid())
+  nome String @unique
+  centroCusto String
+  eventos Evento[]
+}
+model EventoRecurso {
+  eventoId String
+  recursoId String
+  evento Evento @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  recurso Recurso @relation(fields: [recursoId], references: [id], onDelete: Restrict)
+  @@id([eventoId, recursoId])
+}
 
 model Sessao {
   id       String @id
@@ -33,15 +70,29 @@ model Sessao {
 }
 
 enum StatusEvento {
+  RASCUNHO
   PENDENTE
   APROVADO
   RECUSADO
+  CANCELADO
 }
 
 model Evento {
   id             String @id @default(uuid())
   titulo         String
   descricao      String @default("")
+  tema           String @default("")
+  palestrante    String @default("")
+  solicitanteTexto String @default("")
+  publicoAlvo    String @default("")
+  justificativa  String @default("")
+  objetivo       String @default("")
+  cerimonial     Boolean @default(false)
+  haveraInscricoes Boolean @default(false)
+  necessidadeDeclaracoes Boolean @default(false)
+  recursosNecessarios String @default("")
+  observacoes    String @default("")
+  centroCusto    String @default("")
   local          String
   localChave     String
   inicio         DateTime
@@ -54,6 +105,15 @@ model Evento {
   solicitante    User @relation("Solicitante", fields: [solicitanteId], references: [id])
   revisorId      String?
   revisor        User? @relation("Revisor", fields: [revisorId], references: [id])
+  atualizadoEm   DateTime @updatedAt
+  canceladoEm    DateTime?
+  temaId         String?
+  temaRef        Tema? @relation(fields: [temaId], references: [id], onDelete: SetNull)
+  ambienteId     String?
+  ambiente       Ambiente? @relation(fields: [ambienteId], references: [id], onDelete: SetNull)
+  cursoId        String?
+  curso          Curso? @relation(fields: [cursoId], references: [id], onDelete: SetNull)
+  recursos       EventoRecurso[]
 
   @@index([status, inicio, fim])
   @@index([localChave, status, inicio, fim])

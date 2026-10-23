@@ -20,3 +20,13 @@ export function exigirSetor(...setores) {
     next();
   };
 }
+export async function tentarAutenticar(req, _res, next) {
+  if (!idSessao(req)) return next();
+  try {
+    const sessao = await prisma.sessao.findUnique({ where: { id: idSessao(req) }, include: { usuario: { include: { role: true } } } });
+    if (sessao && sessao.expiraEm > new Date() && sessao.usuario.ativo) {
+      req.usuario = { id: sessao.usuario.id, nome: sessao.usuario.name, setor: sessao.usuario.role.name };
+    }
+    next();
+  } catch (erro) { next(erro); }
+}

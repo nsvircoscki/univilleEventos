@@ -1,0 +1,8 @@
+CREATE TYPE "StatusEvento_new" AS ENUM ('RASCUNHO', 'PENDENTE', 'APROVADO', 'RECUSADO', 'CANCELADO');
+ALTER TABLE "Evento" ALTER COLUMN "status" DROP DEFAULT;
+ALTER TABLE "Evento" ALTER COLUMN "status" TYPE "StatusEvento_new" USING ("status"::text::"StatusEvento_new");
+DROP TYPE "StatusEvento";
+ALTER TYPE "StatusEvento_new" RENAME TO "StatusEvento";
+ALTER TABLE "Evento" ALTER COLUMN "status" SET DEFAULT 'PENDENTE';
+ALTER TABLE "Evento" ADD COLUMN "atualizadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE "Evento" ADD COLUMN "canceladoEm" TIMESTAMP(3);

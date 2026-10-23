@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { CalendarDays, CalendarPlus, ClipboardList, ClipboardCheck, Users, LogIn, LogOut, KeyRound } from 'lucide-react';
+import { CalendarDays, CalendarPlus, ClipboardList, ClipboardCheck, Users, LogIn, LogOut, KeyRound, BarChart3 } from 'lucide-react';
 import IntroScreen from './components/IntroScreen';
 import { LoginView } from './components/LoginView';
 import CalendarioView from './page/CalendarioView';
@@ -12,6 +12,8 @@ import { BrandBar } from './components/BrandLogo';
 import CadastroUsuarioView from './page/CadastroUsuarioView';
 import Footer from './components/Footer';
 import ThemeToggle from './components/ThemeToggle';
+import RelatoriosView from './page/RelatoriosView';
+import CadastrosView from './page/CadastrosView';
 
 const telaDaUrl = () => window.location.pathname === '/login' ? 'login' : window.location.pathname === '/cadastro' ? 'cadastro' : 'calendario';
 
@@ -32,6 +34,8 @@ export default function App() {
   const [eventos, setEventos] = useState([]);
   const [erroEventos, setErroEventos] = useState('');
   const [dataSolicitacao, setDataSolicitacao] = useState('');
+  const [eventoEdicao, setEventoEdicao] = useState(null);
+  const [eventoFocoAprovacao, setEventoFocoAprovacao] = useState(null);
   const concluirIntro = useCallback(() => setIntro(true), []);
   const carregarEventos = useCallback(async () => {
     try {
@@ -67,10 +71,15 @@ export default function App() {
     return () => { ativo = false; authService.aoExpirarSessao(null); };
   }, []);
   const abrirLogin = () => setTela('login');
-  const solicitar = (data = '') => {
+  const solicitar = (data = '', evento = null) => {
     setDataSolicitacao(data);
+    setEventoEdicao(evento);
     if (usuario) setTela('solicitar');
     else abrirLogin();
+  };
+  const abrirAprovacao = (evento = null) => {
+    setEventoFocoAprovacao(evento);
+    setTela('aprovacoes');
   };
   if (!intro) return <IntroScreen onDone={concluirIntro} />;
   const concluirAcesso = ({ usuario: pessoa }) => {
@@ -102,18 +111,22 @@ export default function App() {
     <header className="app-header">
       <nav aria-label="Navegação principal">
         <button onClick={() => setTela('calendario')} aria-current={tela === 'calendario' ? 'page' : undefined}><CalendarDays aria-hidden="true" />Calendário</button>
-        <button onClick={() => solicitar()} aria-current={tela === 'solicitar' ? 'page' : undefined}><CalendarPlus aria-hidden="true" />Solicitar evento</button>
+        {usuario && <button onClick={() => solicitar()} aria-current={tela === 'solicitar' ? 'page' : undefined}><CalendarPlus aria-hidden="true" />Solicitar evento</button>}
         {usuario && <button onClick={() => setTela('minhas')} aria-current={tela === 'minhas' ? 'page' : undefined}><ClipboardList aria-hidden="true" />Minhas solicitações</button>}
         {admin && <><button onClick={() => setTela('aprovacoes')} aria-current={tela === 'aprovacoes' ? 'page' : undefined}><ClipboardCheck aria-hidden="true" />Aprovar solicitações</button>
-          <button onClick={() => setTela('usuarios')} aria-current={tela === 'usuarios' ? 'page' : undefined}><Users aria-hidden="true" />Usuários</button></>}
+          <button onClick={() => setTela('relatorios')} aria-current={tela === 'relatorios' ? 'page' : undefined}><BarChart3 aria-hidden="true" />Relatórios</button>
+          <button onClick={() => setTela('usuarios')} aria-current={tela === 'usuarios' ? 'page' : undefined}><Users aria-hidden="true" />Usuários</button>
+          <button onClick={() => setTela('cadastros')} aria-current={tela === 'cadastros' ? 'page' : undefined}>Cadastros</button></>}
       </nav>
     </header>
     {erro && <p className="event-error" role="alert">{erro}</p>}
-    {tela === 'usuarios' && admin ? <UsuariosView usuarioAtual={usuario} onBack={() => setTela('calendario')} />
-      : tela === 'aprovacoes' && admin ? <SolicitacoesView administracao onDecisao={carregarEventos} />
-      : tela === 'minhas' && usuario ? <SolicitacoesView />
-      : tela === 'solicitar' && usuario ? <SolicitarEventoView dataInicial={dataSolicitacao} onEnviado={() => setTela('minhas')} />
-      : <CalendarioView eventos={eventos} erro={erroEventos} onRecarregar={carregarEventos} onSolicitar={solicitar} />}
+    {tela === 'cadastros' && admin ? <CadastrosView />
+      : tela === 'usuarios' && admin ? <UsuariosView usuarioAtual={usuario} onBack={() => setTela('calendario')} />
+      : tela === 'aprovacoes' && admin ? <SolicitacoesView administracao eventoFoco={eventoFocoAprovacao} onDecisao={carregarEventos} onEditar={(evento) => solicitar('', evento)} />
+      : tela === 'relatorios' && admin ? <RelatoriosView />
+      : tela === 'minhas' && usuario ? <SolicitacoesView onEditar={(evento) => solicitar('', evento)} />
+      : tela === 'solicitar' && usuario ? <SolicitarEventoView eventoInicial={eventoEdicao} dataInicial={dataSolicitacao} administrador={admin} onEnviado={(acao) => setTela(acao === 'rascunho' && !admin ? 'minhas' : admin ? 'aprovacoes' : 'minhas')} />
+      : <CalendarioView eventos={eventos} erro={erroEventos} onRecarregar={carregarEventos} onSolicitar={solicitar} autenticado={Boolean(usuario)} publicoLimitado={!usuario} podeEditar={admin} onEditar={admin ? abrirAprovacao : undefined} />}
     {senha && usuario && <AlterarSenhaModal usuarioLogado={usuario.setor} onClose={() => setSenha(false)} />}
     <Footer />
   </>;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '../services/authService';
 
 const campoStyle = {
@@ -24,6 +25,21 @@ export function AlterarSenhaModal({ usuarioLogado, onClose }) {
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [visiveis, setVisiveis] = useState({ atual: false, nova: false, confirmar: false });
+  const alternarVisibilidade = (campo) => setVisiveis((atual) => ({ ...atual, [campo]: !atual[campo] }));
+  const campoSenha = (nome, valor, onChange, label) => (
+    <div style={{ position: 'relative' }}>
+      <input type={visiveis[nome] ? 'text' : 'password'} value={valor} onChange={onChange} style={{ ...campoStyle, paddingRight: '46px' }} />
+      <button
+        type="button"
+        onClick={() => alternarVisibilidade(nome)}
+        aria-label={visiveis[nome] ? `Ocultar ${label}` : `Revelar ${label}`}
+        style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', border: 0, background: 'transparent', color: 'var(--muted)', cursor: 'pointer', padding: 6 }}
+      >
+        {visiveis[nome] ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+      </button>
+    </div>
+  );
 
   const handleSalvar = async () => {
     setErro('');
@@ -72,15 +88,15 @@ export function AlterarSenhaModal({ usuarioLogado, onClose }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={labelStyle}>Senha atual</label>
-                <input type="password" value={senhaAtual} onChange={(e) => setSenhaAtual(e.target.value)} style={campoStyle} />
+                {campoSenha('atual', senhaAtual, (e) => setSenhaAtual(e.target.value), 'a senha atual')}
               </div>
               <div>
                 <label style={labelStyle}>Nova senha</label>
-                <input type="password" value={novaSenha} onChange={(e) => setNovaSenha(e.target.value)} style={campoStyle} />
+                {campoSenha('nova', novaSenha, (e) => setNovaSenha(e.target.value), 'a nova senha')}
               </div>
               <div>
                 <label style={labelStyle}>Confirmar nova senha</label>
-                <input type="password" value={confirmarSenha} onChange={(e) => setConfirmarSenha(e.target.value)} style={campoStyle} />
+                {campoSenha('confirmar', confirmarSenha, (e) => setConfirmarSenha(e.target.value), 'a confirmação da senha')}
               </div>
             </div>
 

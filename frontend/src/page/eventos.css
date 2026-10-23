@@ -15,6 +15,17 @@
 .event-hint { color: var(--muted); font-size: 11px; }
 .event-filters { display: flex; align-items: end; gap: 16px; margin-bottom: 24px; }
 .event-request-list { display: grid; gap: 18px; }
+.cadastro-list { display: grid; gap: 12px; margin-top: 22px; max-width: 900px; }
+.cadastro-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface, white); box-shadow: 0 2px 8px rgb(0 0 0 / 5%); }
+.cadastro-card h2 { margin: 0 0 6px; font-size: 17px; }
+.cadastro-card p { margin: 3px 0; color: var(--muted); font-size: 13px; }
+.cadastro-card-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.cadastro-form-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.resource-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+.resource-option { display: flex !important; grid-template-columns: auto 1fr; align-items: center; gap: 8px !important; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface, white); cursor: pointer; }
+.resource-option input { width: auto; }
+.resource-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.resource-list-item { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface, white); color: var(--text); font-size: 13px; }
 .event-request-title { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
 .event-request h2 { font-size: 18px; }
 .event-request p { margin: 8px 0; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
@@ -26,6 +37,8 @@
 .event-decision { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
 .event-decision > div { display: flex; gap: 10px; margin-top: 14px; }
 .event-empty { padding: 32px; text-align: center; border: 1px solid var(--line); border-radius: 12px; background: white; }
+.event-edit-link { display: inline-block; margin-top: 10px; color: var(--brand-green); font-size: 12px; text-decoration: underline; }
+.event-request-highlight { border-color: var(--brand-green); box-shadow: 0 0 0 3px var(--brand-tint); }
 .login-back { position: absolute; top: 16px; left: 16px; z-index: 1; padding: 10px 14px; border: 1px solid var(--brand-green); border-radius: 6px; background: white; color: var(--brand-green); font-size: 12px; }
 .app-header { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 12px 20px; }
 .account-actions { justify-self: end; display: flex; align-items: center; justify-content: end; flex-wrap: wrap; gap: 8px; }

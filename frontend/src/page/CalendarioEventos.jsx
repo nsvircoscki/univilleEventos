@@ -39,7 +39,7 @@ export function GradeHorarios({ dias, eventos, selecionar, selecionado, hoje, ch
     </div>
   </div>;
 }
-export function DetalheEvento({ evento, onClose }) {
+export function DetalheEvento({ evento, onClose, podeEditar = false, onEditar }) {
   const dialog = useRef(null);
   useLayoutEffect(() => {
     const elemento = dialog.current;
@@ -56,8 +56,11 @@ export function DetalheEvento({ evento, onClose }) {
     onToggle={(e) => { if (e.newState === 'closed') onClose(); }}>
     <button className="event-popover-close" aria-label="Fechar detalhes do evento" onClick={onClose}><X size={18} /></button>
     <h2 id="event-popover-title">{evento.titulo}</h2>
+    {evento.tema && <p><strong>Tema:</strong> {evento.tema}</p>}
+    {evento.palestrante && <p><strong>Palestrante:</strong> {evento.palestrante}</p>}
     <p><MapPin size={16} aria-hidden="true" />{evento.local}</p>
     <p><Clock size={16} aria-hidden="true" /><span>{new Date(evento.inicio).toLocaleString('pt-BR')}<br />até {new Date(evento.fim).toLocaleString('pt-BR')}</span></p>
     <div className="event-popover-description"><strong><FileText size={16} aria-hidden="true" />Descrição</strong><p>{evento.descricao?.trim() || 'Nenhuma descrição informada.'}</p></div>
+    {podeEditar && <a className="event-edit-link" href="#editar-evento" onClick={(e) => { e.preventDefault(); onEditar(evento); onClose(); }}>Editar evento</a>}
   </div>;
 }

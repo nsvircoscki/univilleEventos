@@ -58,6 +58,7 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
   const [novaSenha, setNovaSenha] = useState('');
   const [definindoSenha, setDefinindoSenha] = useState(false);
   const [confirmarDesativar, setConfirmarDesativar] = useState(false);
+  const [senhaAdmin, setSenhaAdmin] = useState('');
   // Enquanto o admin não mexer no login, ele acompanha o nome digitado.
   const [loginEditado, setLoginEditado] = useState(false);
 
@@ -109,9 +110,11 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
 
   const executarSalvar = async () => {
     setConfirmarDesativar(false);
+    setSenhaAdmin('');
     setSalvando(true);
     try {
       const { senha, ...dados } = form;
+      if (confirmarDesativar) dados.senhaAdmin = senhaAdmin;
       const res = editando
         ? await usuarioService.atualizar(selecionado.id, dados)
         : await usuarioService.criar({ ...dados, senha });
@@ -174,13 +177,6 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
       <Section icon="user" title="Pessoas cadastradas" desc="Clique numa pessoa para editar" accent={accent}>
         <div style={{ gridColumn: '1 / -1' }}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
-            <button type="button" onClick={novaPessoa} style={{
-              padding: '9px 18px', borderRadius: 10, border: `1.5px solid ${accent}`,
-              background: editando ? 'var(--surface, #fff)' : `${accent}12`, color: 'var(--accent)',
-              fontFamily: MONT, fontWeight: 700, fontSize: 12.5, cursor: 'pointer',
-            }}>
-              + Criar usuário
-            </button>
           </div>
           <div style={{ border: `1px solid ${C.borderSoft}`, borderRadius: 12, overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 760 }}>
@@ -246,7 +242,7 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
         />
         <SelectField label="Setor" icon="brief" value={form.setor} onChange={set('setor')} options={setores} />
         {!editando && (
-          <Field label="Senha inicial" icon="id" type="password" value={form.senha} onChange={set('senha')} placeholder="Mínimo de 4 caracteres" />
+          <Field label="Senha inicial" icon="id" type="password" revelar value={form.senha} onChange={set('senha')} placeholder="Mínimo de 4 caracteres" />
         )}
 
 
@@ -275,7 +271,7 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
       {editando && (
         <div style={{ marginTop: 30 }}>
         <Section icon="id" title="Redefinir senha" desc="Para quem esqueceu a senha: defina uma temporária e passe pra pessoa" accent={accent}>
-          <Field label="Nova senha" icon="id" type="password" value={novaSenha} onChange={setNovaSenha} placeholder="Mínimo de 4 caracteres" />
+          <Field label="Nova senha" icon="id" type="password" revelar value={novaSenha} onChange={setNovaSenha} placeholder="Mínimo de 4 caracteres" />
           <div style={{ display: 'flex', alignItems: 'flex-end' }}>
             <button type="button" onClick={definirSenha} disabled={definindoSenha} style={{
               padding: '11px 22px', borderRadius: 10, border: `1.5px solid ${accent}`, background: 'var(--surface, #fff)',
@@ -297,7 +293,16 @@ export default function UsuariosView({ onBack, usuarioAtual }) {
           confirmLabel="Desativar"
           onConfirm={executarSalvar}
           onCancel={() => setConfirmarDesativar(false)}
-        />
+        >
+          <input
+            type="password"
+            value={senhaAdmin}
+            onChange={(event) => setSenhaAdmin(event.target.value)}
+            placeholder="Senha atual do administrador"
+            aria-label="Senha atual do administrador"
+            style={{ width: '100%', boxSizing: 'border-box', marginTop: 18, padding: '11px 12px', border: `1px solid ${C.border}`, borderRadius: 10 }}
+          />
+        </ConfirmModal>
       )}
     </Shell>
   );

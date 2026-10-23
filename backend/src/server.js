@@ -6,6 +6,7 @@ import { cabecalhosSeguranca, bloquearOperadores, limitarTentativasLogin, opcoes
 import authRoutes from './routes/authRoutes.js';
 import usuarioRoutes from './routes/usuarioRoutes.js';
 import eventoRoutes from './routes/eventoRoutes.js';
+import cadastroRoutes from './routes/cadastroRoutes.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -18,8 +19,9 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use(['/auth/login', '/auth/cadastro', '/auth/criar-senha', '/auth/alterar-senha'], limitarTentativasLogin);
 app.use('/auth', authRoutes);
 app.use('/eventos', eventoRoutes);
+app.use('/cadastros', autenticar, cadastroRoutes);
 app.use('/usuarios', autenticar, exigirSetor('ADMIN'), usuarioRoutes);
 app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 app.use(tratarErros);
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3301;
 app.listen(port, () => console.log(`API Univille rodando na porta ${port}`));
