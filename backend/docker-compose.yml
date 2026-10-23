@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
       POSTGRES_DB: ${POSTGRES_DB:-univille}
     ports:
-      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - univille_pgdata:/var/lib/postgresql/data
     healthcheck:

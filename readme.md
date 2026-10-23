@@ -45,10 +45,10 @@ Edite `backend/.env` **antes de iniciar o banco**:
 POSTGRES_USER=univille
 POSTGRES_PASSWORD=escolha-uma-senha-local
 POSTGRES_DB=univille
-POSTGRES_PORT=55432
-DATABASE_URL=postgresql://univille:escolha-uma-senha-local@localhost:55432/univille
-PORT=3301
-CORS_ORIGENS=http://localhost:55174
+POSTGRES_PORT=5432
+DATABASE_URL=postgresql://univille:escolha-uma-senha-local@localhost:5432/univille
+PORT=3000
+CORS_ORIGENS=http://localhost:5173
 ADMIN_NOME=Administrador
 ADMIN_EMAIL=seu-email@exemplo.com
 ADMIN_LOGIN=admin
@@ -78,7 +78,7 @@ npm.cmd run db:generate
 npm.cmd run db:migrate
 ```
 
-O Compose cria um PostgreSQL 15 na porta local `55432`, com volume persistente próprio. As migrations criam os perfis, usuários e a estrutura de solicitações de eventos; os dados de usuários e os perfis iniciais são cadastrados pelo comando a seguir.
+O Compose cria um PostgreSQL 15 na porta padrão local `5432`, com volume persistente próprio. As migrations criam os perfis, usuários e a estrutura de solicitações de eventos; os dados de usuários e os perfis iniciais são cadastrados pelo comando a seguir.
 
 Use um banco exclusivo da Univille. Não aplique essas migrations ao banco CCF. Quando estiver em outro computador, use o seu próprio volume e o seu próprio `.env`.
 
@@ -103,13 +103,13 @@ cd ..
 npm.cmd run dev
 ```
 
-- Aplicação: http://localhost:55174
-- API: http://localhost:3301
-- Verificação da API: http://localhost:3301/health
+- Aplicação: http://localhost:5173
+- API: http://localhost:3000
+- Verificação da API: http://localhost:3000/health
 
 O site abre no calendário sem exigir login. A autenticação usa sessões de 12 horas no PostgreSQL e cookie `HttpOnly` / `SameSite=Lax`, sem JWT e sem token de acesso no `localStorage`. O `JWT_SECRET` não é mais usado; se existir em um `.env` antigo, pode ser removido. Em produção, configure `NODE_ENV=production` e HTTPS para o cookie `Secure`. Clique em **Entrar** no canto superior direito da faixa verde da Univille e use `ADMIN_LOGIN` e `ADMIN_SENHA` para entrar pela primeira vez.
 
-Não é necessário criar um `.env` no frontend. O Vite encaminha `/api` para a API local na porta 3301.
+Não é necessário criar um `.env` no frontend. O Vite encaminha `/api` para a API local na porta 3000.
 
 ## Executar nas próximas vezes
 
@@ -188,8 +188,8 @@ Sem a variável, o teste de integração é marcado como ignorado. Os testes de 
 | Login já cadastrado no primeiro admin | O script não redefine contas. Entre com a senha gravada ou solicite redefinição a outro administrador. |
 | 400 ao entrar | Leia a mensagem exibida na tela. Confira usuário, senha e conexão com o banco. |
 | 429 ao entrar/cadastrar | Aguarde a janela de 15 minutos do limitador; em desenvolvimento, reiniciar a API limpa os contadores em memória. |
-| `/api` não responde | Confirme a API na porta 3301 e o frontend na 55174. |
-| Porta 55174 ocupada | Encerre a outra instância do frontend; a porta é fixa. |
+| `/api` não responde | Confirme a API na porta 3000 e o frontend na 5173. |
+| Porta 5173 ocupada | Encerre a outra instância do frontend; a porta é fixa. |
 | Alterou o `.env`, mas nada mudou | Reinicie o backend. Variáveis de ambiente são lidas ao iniciar. |
 
 ## Estrutura e limites atuais

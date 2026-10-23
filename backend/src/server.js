@@ -23,5 +23,5 @@ app.use('/cadastros', autenticar, cadastroRoutes);
 app.use('/usuarios', autenticar, exigirSetor('ADMIN'), usuarioRoutes);
 app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 app.use(tratarErros);
-const port = process.env.PORT || 3301;
+const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`API Univille rodando na porta ${port}`));
